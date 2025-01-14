@@ -1,4 +1,4 @@
-"""Validation classes for H series noise models."""
+"""Validation classes for Quantinuum Systems noise models."""
 
 from typing import Optional, Tuple, Union
 
@@ -7,9 +7,9 @@ from pydantic import BaseModel
 
 class UserErrorParams(BaseModel):
     """User provided error values that override machine values for
-    emulation of H-series devices.
+    emulation of Quantinuum Systems hardware.
 
-    See the H-series documentation for details of each parameter.
+    See the Quantinuum Systems documentation for details of each parameter.
     """
 
     # Physical Noise
