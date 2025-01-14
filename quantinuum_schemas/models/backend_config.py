@@ -20,7 +20,7 @@ from pydantic.fields import Field
 from typing_extensions import Annotated
 
 from quantinuum_schemas.models.aer_noise import AerNoiseModel, CrosstalkParams
-from quantinuum_schemas.models.h_series_noise import UserErrorParams
+from quantinuum_schemas.models.quantinuum_systems_noise import UserErrorParams
 
 
 class BaseBackendConfig(BaseModel, abc.ABC):
