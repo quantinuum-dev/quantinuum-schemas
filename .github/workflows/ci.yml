@@ -11,7 +11,7 @@ on:
 jobs:
   check:
     name: Checks and tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         python-version: ['3.10']
