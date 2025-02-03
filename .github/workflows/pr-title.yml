@@ -20,7 +20,7 @@ permissions:
 jobs:
   main:
     name: Validate Conventional Commit PR title
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # The action does not support running on merge_group events,
     # but if the check succeeds in the PR there is no need to check it again.
     if: github.event_name == 'pull_request_target'
