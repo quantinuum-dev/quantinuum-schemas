@@ -12,4 +12,4 @@ QSysShotItem = tuple[
     Annotated[str, StringConstraints(max_length=256)], QSysShotItemValue
 ]
 QSysShot = list[QSysShotItem]
-Result = list[QSysShot]
+QSysResult = list[QSysShot]

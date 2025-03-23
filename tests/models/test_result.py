@@ -5,16 +5,16 @@ import pytest
 from pydantic import BaseModel
 from pydantic.error_wrappers import ValidationError
 
-from quantinuum_schemas.models.result import Result
+from quantinuum_schemas.models.result import QSysResult
 
 
 def test_result_serialisation() -> None:
     """Test serialisation of result types."""
 
     class TestResultModel(BaseModel):
-        """Test result model."""
+        """Test result model to check pydantic handling."""
 
-        result: Result
+        result: QSysResult
 
     test_result_1 = [
         [
