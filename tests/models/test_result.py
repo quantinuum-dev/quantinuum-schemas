@@ -1,7 +1,6 @@
 """Tests for result types."""
 
 import pytest
-
 from pydantic import BaseModel
 from pydantic.error_wrappers import ValidationError
 
