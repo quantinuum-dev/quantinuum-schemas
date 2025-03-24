@@ -4,7 +4,6 @@ from typing import Annotated, TypeAlias
 
 from pydantic import StringConstraints
 
-
 QShotValType: TypeAlias = int | bool | float
 QSysShotItemValue: TypeAlias = QShotValType | list[QShotValType]
 
