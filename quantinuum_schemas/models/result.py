@@ -1,15 +1,15 @@
 """Validation classes for Quantinuum Systems results."""
 
-from typing import Annotated
+from typing import Annotated, TypeAlias
 
 from pydantic import StringConstraints
 
 
-QShotValType = int | bool | float
-QSysShotItemValue = QShotValType | list[QShotValType]
+QShotValType: TypeAlias = int | bool | float
+QSysShotItemValue: TypeAlias = QShotValType | list[QShotValType]
 
-QSysShotItem = tuple[
+QSysShotItem: TypeAlias = tuple[
     Annotated[str, StringConstraints(max_length=256)], QSysShotItemValue
 ]
-QSysShot = list[QSysShotItem]
-QSysResult = list[QSysShot]
+QSysShot: TypeAlias = list[QSysShotItem]
+QSysResult: TypeAlias = list[QSysShot]
