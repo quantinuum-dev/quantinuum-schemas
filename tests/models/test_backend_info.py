@@ -1,9 +1,10 @@
-from typing import TypedDict
+"""Test backend info models."""
 
 from quantinuum_schemas.models.backend_info import StoredBackendInfo, StoredDevice
 
 
 def test_to_pyteket_backend() -> None:
+    """Test conversion to pytket backend info."""
     gate_set = ["Measure", "Reset", "Rz", "PhasedX", "Barrier"]
     backend_info = StoredBackendInfo(
         name="Example Backend snapshot",
