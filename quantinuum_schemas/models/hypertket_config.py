@@ -1,7 +1,8 @@
 """Configuration options for HyperTKET compilation."""
 
 from enum import Enum
-from typing import Annotated, Optional, Literal, Union
+from typing import Annotated, Literal, Optional, Union
+
 from pydantic import BaseModel, Field
 
 
@@ -21,9 +22,9 @@ class ConstrainedOptOrderConfig(BaseModel):
     """Ordering config for ConstrainedOptOrder."""
 
     ordering_method: Literal["ConstrainedOptOrder"] = "ConstrainedOptOrder"
-    time_limit: Annotated[
-        int, Field(ge=0)
-    ] = 600  # Not clear from OR-Tools docs if this can be 0.
+    time_limit: Annotated[int, Field(ge=0)] = (
+        600  # Not clear from OR-Tools docs if this can be 0.
+    )
     n_threads: Annotated[int, Field(ge=1)] = 1
     hint: Optional[list[int]] = None
 
@@ -37,9 +38,9 @@ class LocalGreedyOrderConfig(BaseModel):
 class LocalGreedyFirstNodeSearchOrderConfig(BaseModel):
     """Ordering config for LocalGreedyFirstNodeSearchOrder."""
 
-    ordering_method: Literal[
+    ordering_method: Literal["LocalGreedyFirstNodeSearchOrder"] = (
         "LocalGreedyFirstNodeSearchOrder"
-    ] = "LocalGreedyFirstNodeSearchOrder"
+    )
 
 
 class CustomOrderConfig(BaseModel):
