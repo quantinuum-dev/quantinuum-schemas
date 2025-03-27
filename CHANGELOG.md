@@ -1,3 +1,11 @@
+## 2.1.0 (2025-03-27)
+
+
+### Added
+
+- Add configuration models for hypertket compilation options (#10).
+- Add Quantinuum Systems result type (#9).
+
 ## 2.0.0 (2025-02-05)
 
 
