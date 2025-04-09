@@ -49,7 +49,7 @@ class AerQuantumError(BaseModel):
 
     type: Literal["qerror"] = "qerror"
     id: str = Field(default_factory=lambda: uuid4().hex)
-    operations: Optional[List[str]] = Field(default_factory=list)
+    operations: Optional[List[str]] = Field(default_factory=lambda: [])
     instructions: List[List[QiskitInstruction]]
     probabilities: List[float] = Field(min_length=1)
     gate_qubits: List[List[int]]
