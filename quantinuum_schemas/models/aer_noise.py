@@ -7,7 +7,6 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, field_validator
 
-import quantinuum_schemas.exceptions as exc
 from quantinuum_schemas.models.backend_info import Register
 
 
