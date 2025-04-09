@@ -1,3 +1,10 @@
+## 3.0.0 (2025-04-09)
+
+
+### Added
+
+- Remove pytket dependency and bump to python 3.11 (#12).
+
 ## 2.1.0 (2025-03-27)
 
 
