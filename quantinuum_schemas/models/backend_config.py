@@ -17,10 +17,15 @@ from pydantic import (
     model_validator,
 )
 from pydantic.fields import Field
-from typing_extensions import Annotated
+from typing_extensions import Annotated, Self
 
 from quantinuum_schemas.models.aer_noise import AerNoiseModel, CrosstalkParams
-from quantinuum_schemas.models.quantinuum_systems_noise import UserErrorParams
+from quantinuum_schemas.models.selene_config import SimpleRuntime, HeliosRuntime
+from quantinuum_schemas.models.quantinuum_systems_noise import (
+    UserErrorParams,
+    SeleneCustomNoiseModel,
+    SeleneErrorMode,
+)
 
 
 class BaseBackendConfig(BaseModel, abc.ABC):
@@ -224,6 +229,72 @@ class QulacsConfig(BaseBackendConfig):
     result_type: str = "state_vector"
 
 
+class QuantinuumSystemEmulationConfig(BaseModel):
+    """Additional configuration for Selene configurations with quantum."""
+
+    runtime: SimpleRuntime | HeliosRuntime = Field(default=SimpleRuntime())
+    error_mode: SeleneErrorMode = SeleneErrorMode.NONE
+    custom_noise_model: SeleneCustomNoiseModel | None = None
+
+    @model_validator(mode="after")
+    def check_valid_runtime_and_error_mode(self) -> Self:
+        """Validate the runtime and error mode configuration for the Selene emulator."""
+
+        # To be removed once runtimes are fully implemented.
+        if not isinstance(self.runtime, SimpleRuntime):
+            raise ValueError("Only simple runtime is currently supported.")
+
+        # To be removed once error models are fully implemented.
+        if self.error_mode != SeleneErrorMode.NONE:
+            raise ValueError("Only SeleneErrorMode.NONE is currently supported.")
+
+        if (
+            self.custom_noise_model is None
+            and self.error_mode == SeleneErrorMode.CUSTOM
+        ):
+            raise ValueError(
+                "SeleneErrorMode.CUSTOM requires a custom noise model to be provided."
+            )
+
+        if (
+            isinstance(self.runtime, SimpleRuntime)
+            and self.error_mode != SeleneErrorMode.NONE
+        ):
+            raise ValueError("Selene 'simple' runtime requires SeleneErrorMode.NONE.")
+
+        return self
+
+
+class SeleneQuestConfig(BaseBackendConfig, QuantinuumSystemEmulationConfig):
+    """Selene Quest statevector simulator."""
+
+    type: Literal["SeleneQuest"] = "SeleneQuest"
+
+
+class SeleneStimConfig(BaseBackendConfig, QuantinuumSystemEmulationConfig):
+    """Selene Stim stabilizer simulator."""
+
+    type: Literal["SeleneStim"] = "SeleneStim"
+
+
+class SeleneLeanConfig(BaseBackendConfig, QuantinuumSystemEmulationConfig):
+    """Selene Lean matrix product state simulator."""
+
+    type: Literal["SeleneLean"] = "SeleneLean"
+
+
+class SeleneCoinFlipConfig(BaseBackendConfig):
+    """Selene 'Coin Flip'  simulator."""
+
+    type: Literal["SeleneCoinFlip"] = "SeleneCoinFlip"
+
+
+class SeleneClassicalReplayConfig(BaseBackendConfig):
+    """Selene 'Classical Replay' simulator."""
+
+    type: Literal["SeleneClassicalReplay"] = "SeleneClassicalReplay"
+
+
 BackendConfig = Annotated[
     Union[
         AerConfig,
@@ -235,6 +306,11 @@ BackendConfig = Annotated[
         IBMQEmulatorConfig,
         ProjectQConfig,
         QulacsConfig,
+        SeleneQuestConfig,
+        SeleneStimConfig,
+        SeleneLeanConfig,
+        SeleneCoinFlipConfig,
+        SeleneClassicalReplayConfig,
     ],
     Field(discriminator="type"),
 ]

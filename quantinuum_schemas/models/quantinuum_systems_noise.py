@@ -1,5 +1,6 @@
 """Validation classes for Quantinuum Systems noise models."""
 
+from enum import Enum
 from typing import Optional, Tuple, Union
 
 from pydantic import BaseModel
@@ -44,3 +45,16 @@ class UserErrorParams(BaseModel):
     emission_scale: Optional[float] = None
     crosstalk_scale: Optional[float] = None
     leakage_scale: Optional[float] = None
+
+
+class SeleneErrorMode(str, Enum):
+    """Mode for error modeling in the Selene emulator."""
+
+    NONE = "NONE"
+    SIMPLE = "SIMPLE"
+    FULL = "FULL"
+    CUSTOM = "CUSTOM"
+
+
+class SeleneCustomNoiseModel(BaseModel):
+    """A custom noise model for the Selene emulator."""
