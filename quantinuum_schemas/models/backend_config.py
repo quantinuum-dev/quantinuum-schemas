@@ -20,12 +20,12 @@ from pydantic.fields import Field
 from typing_extensions import Annotated, Self
 
 from quantinuum_schemas.models.aer_noise import AerNoiseModel, CrosstalkParams
-from quantinuum_schemas.models.selene_config import SimpleRuntime, HeliosRuntime
 from quantinuum_schemas.models.quantinuum_systems_noise import (
-    UserErrorParams,
     SeleneCustomNoiseModel,
     SeleneErrorMode,
+    UserErrorParams,
 )
+from quantinuum_schemas.models.selene_config import HeliosRuntime, SimpleRuntime
 
 
 class BaseBackendConfig(BaseModel, abc.ABC):
