@@ -230,7 +230,7 @@ class QulacsConfig(BaseBackendConfig):
 
 
 class QuantinuumSystemEmulationConfig(BaseModel):
-    """Additional configuration for Selene configurations with quantum."""
+    """Additional configuration for Selene configurations with quantum simulation."""
 
     runtime: SimpleRuntime | HeliosRuntime = Field(default=SimpleRuntime())
     error_mode: SeleneErrorMode = SeleneErrorMode.NONE
