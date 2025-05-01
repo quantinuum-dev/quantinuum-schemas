@@ -21,11 +21,14 @@ from typing_extensions import Annotated, Self
 
 from quantinuum_schemas.models.aer_noise import AerNoiseModel, CrosstalkParams
 from quantinuum_schemas.models.quantinuum_systems_noise import (
-    SeleneCustomNoiseModel,
-    SeleneErrorMode,
     UserErrorParams,
 )
-from quantinuum_schemas.models.selene_config import HeliosRuntime, SimpleRuntime
+from quantinuum_schemas.models.selene_config import (
+    SimpleRuntime,
+    HeliosRuntime,
+    DepolarizingErrorModel,
+    IdealErrorModel,
+)
 
 
 class BaseBackendConfig(BaseModel, abc.ABC):
@@ -170,10 +173,10 @@ class QuantinuumConfig(BaseBackendConfig):
     """Runs circuits on Quantinuum's quantum devices and simulators."""
 
     type: Literal["QuantinuumConfig"] = "QuantinuumConfig"
-    device_name: str  # The quantum computer or simulator to run a circuit on.
-    simulator: str = (
-        "state-vector"  # If device_name is a simulator, the type of simulator to use.
-    )
+    device_name: str
+    """The quantum computer or emulator to target."""
+    simulator: str = "state-vector"
+    """If device_name is a simulator, the type of simulator to use."""
     machine_debug: bool = False
     attempt_batching: bool = False
     # Parameters below are passed into QuantinuumBackend.compilation_config in their own class.
@@ -229,70 +232,71 @@ class QulacsConfig(BaseBackendConfig):
     result_type: str = "state_vector"
 
 
-class QuantinuumSystemEmulationConfig(BaseModel):
-    """Additional configuration for Selene configurations with quantum simulation."""
+class SeleneConfig(BaseModel):
+    """Shared configuration for Selene emulator instances."""
 
     runtime: SimpleRuntime | HeliosRuntime = Field(default=SimpleRuntime())
-    error_mode: SeleneErrorMode = SeleneErrorMode.NONE
-    custom_noise_model: SeleneCustomNoiseModel | None = None
+    """Runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios) will model 
+    system aspects such as ion transport."""
+    error_model: IdealErrorModel | DepolarizingErrorModel = Field(
+        default=IdealErrorModel()
+    )
+    """Error model for the Selene emulator."""
+    seed: int | None = Field(default=None)
+    """Random seed for the simulation engine."""
+    n_qubits: int = Field(ge=1)
+    """The maximum number of qubits to simulate"""
 
     @model_validator(mode="after")
-    def check_valid_runtime_and_error_mode(self) -> Self:
-        """Validate the runtime and error mode configuration for the Selene emulator."""
-
-        # To be removed once runtimes are fully implemented.
-        if not isinstance(self.runtime, SimpleRuntime):
-            raise ValueError("Only simple runtime is currently supported.")
-
-        # To be removed once error models are fully implemented.
-        if self.error_mode != SeleneErrorMode.NONE:
-            raise ValueError("Only SeleneErrorMode.NONE is currently supported.")
-
-        if (
-            self.custom_noise_model is None
-            and self.error_mode == SeleneErrorMode.CUSTOM
-        ):
-            raise ValueError(
-                "SeleneErrorMode.CUSTOM requires a custom noise model to be provided."
-            )
-
-        if (
-            isinstance(self.runtime, SimpleRuntime)
-            and self.error_mode != SeleneErrorMode.NONE
-        ):
-            raise ValueError("Selene 'simple' runtime requires SeleneErrorMode.NONE.")
-
+    def check_valid_config(self) -> Self:
+        """Validate the configuration for the Selene emulator."""
+        # Can add validation here once needed.
         return self
 
 
-class SeleneQuestConfig(BaseBackendConfig, QuantinuumSystemEmulationConfig):
-    """Selene Quest statevector simulator."""
+class SeleneQuestConfig(BaseBackendConfig, SeleneConfig):
+    """Selene QuEST statevector simulator."""
 
     type: Literal["SeleneQuest"] = "SeleneQuest"
 
+    n_qubits: int = Field(ge=1, le=28)
+    """The maximum number of qubits to simulate. Selene QuEST in Nexus is currently limited 
+    to 28 qubits."""
 
-class SeleneStimConfig(BaseBackendConfig, QuantinuumSystemEmulationConfig):
-    """Selene Stim stabilizer simulator."""
+
+class SeleneStimConfig(BaseBackendConfig, SeleneConfig):
+    """Selene Stim stabilizer simulator. As Stim is a stabilizer simulator, it can only simulate
+    Clifford operations. We provide an angle threshold parameter for users to decide how far angles
+    can be away from pi/2 rotations on the bloch sphere before they are considered invalid.
+    This is to avoid numerical instability, or to inject approximations."""
 
     type: Literal["SeleneStim"] = "SeleneStim"
 
-
-class SeleneLeanConfig(BaseBackendConfig, QuantinuumSystemEmulationConfig):
-    """Selene Lean matrix product state simulator."""
-
-    type: Literal["SeleneLean"] = "SeleneLean"
+    angle_threshold: float = Field(default=1e-8, gt=0.0)
+    """How far angles can be away from pi/2 rotations on the bloch sphere before they are 
+    considered invalid."""
 
 
-class SeleneCoinFlipConfig(BaseBackendConfig):
-    """Selene 'Coin Flip'  simulator."""
+class SeleneCoinFlipConfig(BaseBackendConfig, SeleneConfig):
+    """Selene 'Coin Flip'  simulator. Doesn't maintain any quantum state and picks a random
+    boolean value for each measurement."""
 
     type: Literal["SeleneCoinFlip"] = "SeleneCoinFlip"
 
+    bias: float = Field(default=0.5, ge=0.0, le=1.0)
+    """The bias of the coin flip. The greater this value, the more likely a measurement 
+    will return True"""
 
-class SeleneClassicalReplayConfig(BaseBackendConfig):
-    """Selene 'Classical Replay' simulator."""
+
+class SeleneClassicalReplayConfig(BaseBackendConfig, SeleneConfig):
+    """Selene 'Classical Replay' simulator. This simulator allows a user to predefine the
+    results of measurements for each shot. No quantum operations are performed."""
 
     type: Literal["SeleneClassicalReplay"] = "SeleneClassicalReplay"
+
+    measurements: list[list[bool]] = Field(default_factory=list[list[bool]])
+    """A list of lists of booleans, where each inner list represents the boolean measurement 
+    results for a single shot."""
 
 
 BackendConfig = Annotated[
@@ -308,7 +312,6 @@ BackendConfig = Annotated[
         QulacsConfig,
         SeleneQuestConfig,
         SeleneStimConfig,
-        SeleneLeanConfig,
         SeleneCoinFlipConfig,
         SeleneClassicalReplayConfig,
     ],
