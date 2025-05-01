@@ -5,21 +5,21 @@ from quantinuum_schemas.models.backend_config import (
     AerStateConfig,
     AerUnitaryConfig,
     BraketConfig,
-    QuantinuumConfig,
     IBMQConfig,
     IBMQEmulatorConfig,
     ProjectQConfig,
+    QuantinuumConfig,
     QulacsConfig,
+    SeleneClassicalReplayConfig,
+    SeleneCoinFlipConfig,
     SeleneQuestConfig,
     SeleneStimConfig,
-    SeleneCoinFlipConfig,
-    SeleneClassicalReplayConfig,
 )
 from quantinuum_schemas.models.selene_config import (
-    SimpleRuntime,
+    DepolarizingErrorModel,
     HeliosRuntime,
     IdealErrorModel,
-    DepolarizingErrorModel,
+    SimpleRuntime,
 )
 
 __all__ = [

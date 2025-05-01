@@ -24,10 +24,10 @@ from quantinuum_schemas.models.quantinuum_systems_noise import (
     UserErrorParams,
 )
 from quantinuum_schemas.models.selene_config import (
-    SimpleRuntime,
-    HeliosRuntime,
     DepolarizingErrorModel,
+    HeliosRuntime,
     IdealErrorModel,
+    SimpleRuntime,
 )
 
 
