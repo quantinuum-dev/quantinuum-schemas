@@ -1,3 +1,10 @@
+## 3.1.0 (2025-05-06)
+
+
+### Added
+
+- Add optional `max_cost` field to QuantinuumConfig (#16).
+
 ## 3.0.1 (2025-04-10)
 
 
