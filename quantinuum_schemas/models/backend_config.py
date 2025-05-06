@@ -182,6 +182,7 @@ class QuantinuumConfig(BaseBackendConfig):
     allow_2q_gate_rebase: bool = False
     leakage_detection: bool = False
     simplify_initial: bool = False
+    max_cost: Optional[int] = None
     error_params: Optional[UserErrorParams] = None
 
 
