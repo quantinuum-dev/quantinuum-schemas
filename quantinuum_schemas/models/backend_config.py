@@ -314,6 +314,44 @@ class SeleneStimConfig(BaseBackendConfig, SeleneConfig):
     angle_threshold: float = Field(default=1e-8, gt=0.0)
 
 
+class SeleneLeanConfig(BaseBackendConfig, SeleneConfig):
+    """Selene Lean (low-entanglement approximation engine) tensor network simulator.
+
+    Args:
+        runtime: The runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios)
+          will model system aspects such as ion transport.
+        error_model: The error model for the Selene emulator.
+        seed: Random seed for the simulation engine.
+        n_qubits: The maximum number of qubits to simulate.
+        backend: The classical compute backend to use.
+        precision: The floating point precision used in tensor calculations.
+        chi: The maximum value allowed for the dimension of the virtual bonds. Higher implies better
+          approximation but more computational resources. If not provided, chi will be unbounded.
+        truncation_fidelity: Every time a two-qubit gate is applied, the virtual bond will be
+          truncated to the minimum dimension that satisfies |<psi|phi>|^2 >= trucantion_fidelity,
+          where |psi> and |phi> are the states before and after truncation (both normalised).
+          If not provided, it will default to its maximum value 1.
+        zero_threshold: Any number below this value will be considered equal to zero.
+          Even when no chi or truncation_fidelity is provided, singular values below
+          this number will be truncated.
+    """
+
+    type: Literal["SeleneLeanReplay"] = "SeleneLeanReplay"
+
+    backend: Literal["cpu", "cuda"] = "cpu"
+    precision: Literal[32, 64] = 32
+    chi: int | None = Field(default=None, gt=0, lt=256)
+    truncation_fidelity: float | None = Field(default=None, gt=0, le=1)
+    zero_threshold: float | None = Field(default=None, gt=0, le=1)
+
+    @model_validator(mode="after")
+    def check_valid_config(self) -> Self:
+        """Validate the configuration for the Selene emulator."""
+        if self.chi and self.truncation_fidelity:
+            raise ValueError("Cannot set both chi and truncation_fidelity.")
+        return self
+
+
 class SeleneCoinFlipConfig(BaseBackendConfig, SeleneConfig):
     """Selene 'Coin Flip'  simulator. Doesn't maintain any quantum state and picks a random
     boolean value for each measurement.
@@ -364,6 +402,7 @@ BackendConfig = Annotated[
         QulacsConfig,
         SeleneQuestConfig,
         SeleneStimConfig,
+        SeleneLeanConfig,
         SeleneCoinFlipConfig,
         SeleneClassicalReplayConfig,
     ],

@@ -14,6 +14,7 @@ from quantinuum_schemas.models.backend_config import (
     SeleneCoinFlipConfig,
     SeleneQuestConfig,
     SeleneStimConfig,
+    SeleneLeanConfig,
 )
 from quantinuum_schemas.models.selene_config import (
     DepolarizingErrorModel,
@@ -34,6 +35,7 @@ __all__ = [
     "QulacsConfig",
     "SeleneQuestConfig",
     "SeleneStimConfig",
+    "SeleneLeanConfig",
     "SeleneCoinFlipConfig",
     "SeleneClassicalReplayConfig",
     "SimpleRuntime",
