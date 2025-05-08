@@ -1,3 +1,8 @@
+## 3.1.1 (2025-05-08)
+
+- Remove unused arguments on QuantinuumConfig
+
+
 ## 3.1.0 (2025-05-06)
 
 
