@@ -173,7 +173,6 @@ class QuantinuumConfig(BaseBackendConfig):
     attempt_batching: bool = False
     # Parameters below are passed into QuantinuumBackend.compilation_config in their own class.
     allow_implicit_swaps: bool = True
-    target_2qb_gate: Optional[str] = None
     # Parameters below are kwargs used in QuantinuumBackend.process_circuits().
     noisy_simulation: bool = True
     user_group: Optional[str] = None
