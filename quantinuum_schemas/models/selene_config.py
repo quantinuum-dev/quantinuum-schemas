@@ -56,3 +56,15 @@ class DepolarizingErrorModel(BaseModel):
     p_2q: float = Field(default=0.0, ge=0.0, le=1.0)
     p_meas: float = Field(default=0.0, ge=0.0, le=1.0)
     p_init: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
+class QSystemErrorModel(BaseModel):
+    """Model for simulating error for a specific QSystem via Selene.
+
+    Args:
+        seed: Random seed for the error model.
+        name: Name of the QSystem error model.
+    """
+
+    seed: int | None = Field(default=None)
+    name: str = "alpha"
