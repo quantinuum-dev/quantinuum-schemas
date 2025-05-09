@@ -12,14 +12,15 @@ from quantinuum_schemas.models.backend_config import (
     QulacsConfig,
     SeleneClassicalReplayConfig,
     SeleneCoinFlipConfig,
+    SeleneLeanConfig,
     SeleneQuestConfig,
     SeleneStimConfig,
-    SeleneLeanConfig,
 )
 from quantinuum_schemas.models.selene_config import (
     DepolarizingErrorModel,
-    HeliosRuntime,
+    QSystemErrorModel,
     IdealErrorModel,
+    HeliosRuntime,
     SimpleRuntime,
 )
 
@@ -42,4 +43,5 @@ __all__ = [
     "HeliosRuntime",
     "IdealErrorModel",
     "DepolarizingErrorModel",
+    "QSystemErrorModel",
 ]
