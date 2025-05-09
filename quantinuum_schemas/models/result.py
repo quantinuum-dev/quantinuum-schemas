@@ -1,4 +1,8 @@
-"""Validation classes for Quantinuum Systems results."""
+"""Validation classes for Quantinuum Systems results.
+
+
+Deprecated - please use HUGR's QSysResult instead.
+"""
 
 from typing import Annotated, TypeAlias
 
