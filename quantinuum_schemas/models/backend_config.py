@@ -27,6 +27,7 @@ from quantinuum_schemas.models.selene_config import (
     DepolarizingErrorModel,
     HeliosRuntime,
     IdealErrorModel,
+    QSystemErrorModel,
     SimpleRuntime,
 )
 
@@ -263,7 +264,7 @@ class SeleneConfig(BaseModel):
     """
 
     runtime: SimpleRuntime | HeliosRuntime = Field(default=SimpleRuntime())
-    error_model: IdealErrorModel | DepolarizingErrorModel = Field(
+    error_model: IdealErrorModel | DepolarizingErrorModel | QSystemErrorModel = Field(
         default=IdealErrorModel()
     )
     seed: int | None = Field(default=None)
@@ -340,13 +341,15 @@ class SeleneLeanConfig(BaseBackendConfig, SeleneConfig):
 
     backend: Literal["cpu", "cuda"] = "cpu"
     precision: Literal[32, 64] = 32
-    chi: int | None = Field(default=None, gt=0, lt=256)
+    chi: int | None = Field(default=None, gt=0)
     truncation_fidelity: float | None = Field(default=None, gt=0, le=1)
     zero_threshold: float | None = Field(default=None, gt=0, le=1)
 
     @model_validator(mode="after")
     def check_valid_config(self) -> Self:
         """Validate the configuration for the Selene emulator."""
+        if self.backend == "cpu" and self.chi is not None and self.chi > 256:
+            raise ValueError("CPU backend does not support chi > 256.")
         if self.chi and self.truncation_fidelity:
             raise ValueError("Cannot set both chi and truncation_fidelity.")
         return self
