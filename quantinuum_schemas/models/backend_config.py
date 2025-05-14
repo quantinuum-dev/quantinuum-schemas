@@ -26,7 +26,7 @@ from quantinuum_schemas.models.quantinuum_systems_noise import (
 from quantinuum_schemas.models.selene_config import (
     DepolarizingErrorModel,
     HeliosRuntime,
-    IdealErrorModel,
+    NoErrorModel,
     QSystemErrorModel,
     SimpleRuntime,
 )
@@ -181,7 +181,6 @@ class QuantinuumConfig(BaseBackendConfig):
         allow_implicit_swaps: Whether to allow implicit swaps in the compilation process.
         target_2qb_gate: The target 2-qubit gate for the compilation process.
         noisy_simulation: Whether to use a noisy simulation with an error model.
-        user_group: The user group for the compilation jobs.
         compiler_options: Additional options for the Quantinuum Systems compiler.
         no_opt: Whether to disable optimization in the compilation process.
         allow_2q_gate_rebase: Whether to allow 2-qubit gate rebase in the compilation process.
@@ -192,6 +191,7 @@ class QuantinuumConfig(BaseBackendConfig):
         simplify_initial: Apply the pytket SimplifyInitial pass to improve fidelity of
           results assuming all qubits initialized to zero.
         error_params: Additional error parameters for execution on an emulator.
+        user_group: The user group for the compilation jobs.
     """
 
     type: Literal["QuantinuumConfig"] = "QuantinuumConfig"
@@ -252,8 +252,8 @@ class QulacsConfig(BaseBackendConfig):
     result_type: str = "state_vector"
 
 
-class SeleneConfig(BaseModel):
-    """Shared configuration for Selene emulator instances.
+class BaseSeleneConfig(BaseModel):
+    """Shared configuration for Selene emulator instances. Not to be used directly.
 
     Args:
         runtime: The runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios)
@@ -263,21 +263,15 @@ class SeleneConfig(BaseModel):
         n_qubits: The maximum number of qubits to simulate.
     """
 
-    runtime: SimpleRuntime | HeliosRuntime = Field(default=SimpleRuntime())
-    error_model: IdealErrorModel | DepolarizingErrorModel | QSystemErrorModel = Field(
-        default=IdealErrorModel()
+    runtime: SimpleRuntime | HeliosRuntime = Field(default_factory=SimpleRuntime)
+    error_model: NoErrorModel | DepolarizingErrorModel | QSystemErrorModel = Field(
+        default_factory=NoErrorModel
     )
     seed: int | None = Field(default=None)
     n_qubits: int = Field(ge=1)
 
-    @model_validator(mode="after")
-    def check_valid_config(self) -> Self:
-        """Validate the configuration for the Selene emulator."""
-        # Can add validation here once needed.
-        return self
 
-
-class SeleneQuestConfig(BaseBackendConfig, SeleneConfig):
+class SeleneQuestConfig(BaseBackendConfig, BaseSeleneConfig):
     """Selene QuEST statevector simulator.
 
     Args:
@@ -294,7 +288,7 @@ class SeleneQuestConfig(BaseBackendConfig, SeleneConfig):
     n_qubits: int = Field(ge=1, le=28)
 
 
-class SeleneStimConfig(BaseBackendConfig, SeleneConfig):
+class SeleneStimConfig(BaseBackendConfig, BaseSeleneConfig):
     """Selene Stim stabilizer simulator. As Stim is a stabilizer simulator, it can only simulate
     Clifford operations. We provide an angle threshold parameter for users to decide how far angles
     can be away from pi/2 rotations on the bloch sphere before they are considered invalid.
@@ -315,7 +309,7 @@ class SeleneStimConfig(BaseBackendConfig, SeleneConfig):
     angle_threshold: float = Field(default=1e-8, gt=0.0)
 
 
-class SeleneLeanConfig(BaseBackendConfig, SeleneConfig):
+class SeleneLeanConfig(BaseBackendConfig, BaseSeleneConfig):
     """Selene Lean (low-entanglement approximation engine) tensor network simulator.
 
     Args:
@@ -337,7 +331,7 @@ class SeleneLeanConfig(BaseBackendConfig, SeleneConfig):
           this number will be truncated.
     """
 
-    type: Literal["SeleneLeanReplay"] = "SeleneLeanReplay"
+    type: Literal["SeleneLeanConfig"] = "SeleneLeanConfig"
 
     backend: Literal["cpu", "cuda"] = "cpu"
     precision: Literal[32, 64] = 32
@@ -355,7 +349,7 @@ class SeleneLeanConfig(BaseBackendConfig, SeleneConfig):
         return self
 
 
-class SeleneCoinFlipConfig(BaseBackendConfig, SeleneConfig):
+class SeleneCoinFlipConfig(BaseBackendConfig, BaseSeleneConfig):
     """Selene 'Coin Flip'  simulator. Doesn't maintain any quantum state and picks a random
     boolean value for each measurement.
 
@@ -365,7 +359,7 @@ class SeleneCoinFlipConfig(BaseBackendConfig, SeleneConfig):
         error_model: The error model for the Selene emulator.
         seed: Random seed for the simulation engine.
         n_qubits: The maximum number of qubits to simulate.
-        bias: The bias of the coin flip. The greater this value, the more likely a measurement
+        bias: The bias of the coin flip. This value is the probability that any given measurement
           will return True.
     """
 
@@ -374,7 +368,7 @@ class SeleneCoinFlipConfig(BaseBackendConfig, SeleneConfig):
     bias: float = Field(default=0.5, ge=0.0, le=1.0)
 
 
-class SeleneClassicalReplayConfig(BaseBackendConfig, SeleneConfig):
+class SeleneClassicalReplayConfig(BaseBackendConfig, BaseSeleneConfig):
     """Selene 'Classical Replay' simulator. This simulator allows a user to predefine the
     results of measurements for each shot. No quantum operations are performed.
 

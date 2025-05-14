@@ -26,8 +26,8 @@ class HeliosRuntime(BaseModel):
     seed: int | None = Field(default=None)
 
 
-class IdealErrorModel(BaseModel):
-    """Model for simulating ideal error in quantum systems via Selene.
+class NoErrorModel(BaseModel):
+    """Model for simulating ideal quantum systems via Selene.
 
     All operations provided by the runtime will be executed as-is, without any
     errors.

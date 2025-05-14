@@ -19,7 +19,7 @@ from quantinuum_schemas.models.backend_config import (
 from quantinuum_schemas.models.selene_config import (
     DepolarizingErrorModel,
     HeliosRuntime,
-    IdealErrorModel,
+    NoErrorModel,
     QSystemErrorModel,
     SimpleRuntime,
 )
@@ -41,7 +41,7 @@ __all__ = [
     "SeleneClassicalReplayConfig",
     "SimpleRuntime",
     "HeliosRuntime",
-    "IdealErrorModel",
+    "NoErrorModel",
     "DepolarizingErrorModel",
     "QSystemErrorModel",
 ]
