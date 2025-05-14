@@ -279,8 +279,7 @@ class SeleneQuestConfig(BaseBackendConfig, BaseSeleneConfig):
           will model system aspects such as ion transport.
         error_model: The error model for the Selene emulator.
         seed: Random seed for the simulation engine.
-        n_qubits: The maximum number of qubits to simulate. Selene QuEST in Nexus is currently
-          limited to 28 qubits.
+        n_qubits: The maximum number of qubits to simulate. Limits apply for Selene QuEST in Nexus.
     """
 
     type: Literal["SeleneQuest"] = "SeleneQuest"
