@@ -32,8 +32,8 @@ commits, follow these steps to publish.
   ```
   This will use the [commit history](https://www.conventionalcommits.org/) and
   modify `CHANGELOG.md` to include a heading with the new version number and the
-  date. It also updates `.cz.toml`. The tool automatically decides whether to
-  increment the patch version, minor version or major version.
+  date. The tool automatically decides whether to increment the patch version,
+  minor version or major version.
 
   If none of the commits since the last version tag would generate a CHANGELOG
   entry, then you will see `NO_COMMITS_TO_BUMP`. In this situation,

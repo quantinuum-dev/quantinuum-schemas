@@ -1,3 +1,10 @@
+## 3.2.0 (2025-05-16)
+
+
+### Added
+
+- Selene configurations for Nexus.
+
 ## 3.1.1 (2025-05-08)
 
 - Remove unused arguments on QuantinuumConfig
