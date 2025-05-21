@@ -261,7 +261,6 @@ class QulacsConfig(BaseBackendConfig):
     type: Literal["QulacsConfig"] = "QulacsConfig"
     result_type: str = "state_vector"
     gpu_sim: bool = False
-    seed: Optional[int] = None
 
 
 class BaseSeleneConfig(BaseModel):
@@ -292,7 +291,7 @@ class BaseSeleneConfig(BaseModel):
         return self
 
 
-class SeleneQuestConfig(BaseSeleneConfig, BaseBackendConfig):
+class SeleneQuestConfig(BaseBackendConfig, BaseSeleneConfig):
     """Selene QuEST statevector simulator.
 
     Args:
@@ -308,7 +307,7 @@ class SeleneQuestConfig(BaseSeleneConfig, BaseBackendConfig):
     n_qubits: int = Field(ge=1, le=28)
 
 
-class SeleneStimConfig(BaseSeleneConfig, BaseBackendConfig):
+class SeleneStimConfig(BaseBackendConfig, BaseSeleneConfig):
     """Selene Stim stabilizer simulator. As Stim is a stabilizer simulator, it can only simulate
     Clifford operations. We provide an angle threshold parameter for users to decide how far angles
     can be away from pi/2 rotations on the bloch sphere before they are considered invalid.
@@ -329,7 +328,7 @@ class SeleneStimConfig(BaseSeleneConfig, BaseBackendConfig):
     angle_threshold: float = Field(default=1e-8, gt=0.0)
 
 
-class SeleneLeanConfig(BaseSeleneConfig, BaseBackendConfig):
+class SeleneLeanConfig(BaseBackendConfig, BaseSeleneConfig):
     """Selene Lean (low-entanglement approximation engine) tensor network simulator.
 
     Args:
@@ -369,7 +368,7 @@ class SeleneLeanConfig(BaseSeleneConfig, BaseBackendConfig):
         return self
 
 
-class SeleneCoinFlipConfig(BaseSeleneConfig, BaseBackendConfig):
+class SeleneCoinFlipConfig(BaseBackendConfig, BaseSeleneConfig):
     """Selene 'Coin Flip'  simulator. Doesn't maintain any quantum state and picks a random
     boolean value for each measurement.
 
@@ -388,7 +387,7 @@ class SeleneCoinFlipConfig(BaseSeleneConfig, BaseBackendConfig):
     bias: float = Field(default=0.5, ge=0.0, le=1.0)
 
 
-class SeleneClassicalReplayConfig(BaseSeleneConfig, BaseBackendConfig):
+class SeleneClassicalReplayConfig(BaseBackendConfig, BaseSeleneConfig):
     """Selene 'Classical Replay' simulator. This simulator allows a user to predefine the
     results of measurements for each shot. No quantum operations are performed.
 
