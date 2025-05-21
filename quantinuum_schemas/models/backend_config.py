@@ -9,8 +9,13 @@ as our backend credential classes handle those.
 import abc
 from typing import Any, Dict, Literal, Optional, Type, TypeVar, Union
 
-from pydantic import BaseModel
-from pydantic import ConfigDict, PositiveInt, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    PositiveInt,
+    field_validator,
+    model_validator,
+)
 from pydantic.fields import Field
 from typing_extensions import Annotated, Self
 
