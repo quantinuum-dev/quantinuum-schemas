@@ -9,7 +9,7 @@ as our backend credential classes handle those.
 import abc
 from typing import Any, Dict, Literal, Optional, Type, TypeVar, Union
 
-from pydantic import BaseModel as PydanticBaseModel
+from pydantic import BaseModel
 from pydantic import ConfigDict, PositiveInt, field_validator, model_validator
 from pydantic.fields import Field
 from typing_extensions import Annotated, Self
@@ -24,10 +24,10 @@ from quantinuum_schemas.models.selene_config import (
     SimpleRuntime,
 )
 
-ST = TypeVar("ST", bound="PydanticBaseModel")
+ST = TypeVar("ST", bound="BaseModel")
 
 
-class BaseBackendConfig(PydanticBaseModel, abc.ABC):
+class BaseBackendConfig(BaseModel, abc.ABC):
     """Base class for all the backend configs.
     Implements the to_serializable and from_serializable methods
     for backwards compatibility.
@@ -53,7 +53,6 @@ class AerConfig(BaseBackendConfig):
     simulation_method: str = "automatic"
     crosstalk_params: Optional[CrosstalkParams] = None
     n_qubits: PositiveInt = 40
-    seed: Optional[int] = None
 
     @field_validator("noise_model", mode="before")
     @classmethod
@@ -82,14 +81,14 @@ class AerStateConfig(BaseBackendConfig):
     """Qiskit Aer state vector simulator."""
 
     type: Literal["AerStateConfig"] = "AerStateConfig"
-    n_qubits: PositiveInt = Field(default=40, le=64)
+    n_qubits: PositiveInt = 40
 
 
 class AerUnitaryConfig(BaseBackendConfig):
     """Qiskit Aer unitary simulator."""
 
     type: Literal["AerUnitaryConfig"] = "AerUnitaryConfig"
-    n_qubits: PositiveInt = Field(default=40, le=64)
+    n_qubits: PositiveInt = 40
 
 
 class BraketConfig(BaseBackendConfig):
@@ -155,7 +154,7 @@ class BraketConfig(BaseBackendConfig):
         return values
 
 
-class QuantinuumCompilerOptions(PydanticBaseModel):
+class QuantinuumCompilerOptions(BaseModel):
     """Class for Quantinuum Compiler Options.
 
     Intentionally allows extra unknown flags to be defined.
@@ -248,7 +247,6 @@ class IBMQEmulatorConfig(BaseBackendConfig):
     hub: str
     group: str
     project: str
-    seed: Optional[int] = None
 
 
 class ProjectQConfig(BaseBackendConfig):
@@ -266,7 +264,7 @@ class QulacsConfig(BaseBackendConfig):
     seed: Optional[int] = None
 
 
-class BaseSeleneConfig(PydanticBaseModel):
+class BaseSeleneConfig(BaseModel):
     """Shared configuration for Selene emulator instances. Not to be used directly.
 
     Args:
