@@ -1,5 +1,11 @@
+## 3.2.1 (2025-05-22)
+
+
 ## 3.2.0 (2025-05-16)
 
+### Fixed
+
+- Selene BackendConfig deserialization discrimination.
 
 ### Added
 
