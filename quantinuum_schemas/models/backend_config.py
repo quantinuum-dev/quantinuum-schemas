@@ -7,7 +7,7 @@ as our backend credential classes handle those.
 
 # pylint: disable=too-many-lines
 import abc
-from typing import Any, Dict, Literal, Optional, Union
+from typing import Any, Dict, Literal, Optional, Type, TypeVar, Union
 
 from pydantic import (
     BaseModel,
@@ -20,9 +20,7 @@ from pydantic.fields import Field
 from typing_extensions import Annotated, Self
 
 from quantinuum_schemas.models.aer_noise import AerNoiseModel, CrosstalkParams
-from quantinuum_schemas.models.quantinuum_systems_noise import (
-    UserErrorParams,
-)
+from quantinuum_schemas.models.quantinuum_systems_noise import UserErrorParams
 from quantinuum_schemas.models.selene_config import (
     DepolarizingErrorModel,
     HeliosRuntime,
@@ -31,11 +29,25 @@ from quantinuum_schemas.models.selene_config import (
     SimpleRuntime,
 )
 
+ST = TypeVar("ST", bound="BaseModel")
+
 
 class BaseBackendConfig(BaseModel, abc.ABC):
-    """Base class for all the backend configs."""
+    """Base class for all the backend configs.
+    Implements the to_serializable and from_serializable methods
+    for backwards compatibility.
+    """
 
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, extra="ignore")
+
+    def to_serializable(self) -> Dict[str, Any]:
+        """Obtain orjson serializable form of the model."""
+        return self.model_dump(exclude_none=True)
+
+    @classmethod
+    def from_serializable(cls: Type[ST], jsonable: Dict[str, Any]) -> ST:
+        """Construct the class from a dict and perform validation."""
+        return cls(**jsonable)
 
 
 class AerConfig(BaseBackendConfig):
@@ -163,7 +175,7 @@ class QuantinuumCompilerOptions(BaseModel):
         for key in values:
             assert isinstance(
                 values[key], (str, int, bool, float, list)
-            ), "Compiler options must be str, bool or int"
+            ), "Compiler options must be str, bool int, float or a list of floats"
             if isinstance(values[key], list):
                 for x in values[key]:
                     assert isinstance(x, float), "Lists must only contain floats"
@@ -192,6 +204,8 @@ class QuantinuumConfig(BaseBackendConfig):
           results assuming all qubits initialized to zero.
         error_params: Additional error parameters for execution on an emulator.
         user_group: The user group for the compilation jobs.
+        max_batch_cost: The maximum HQC cost for a batch of programs (total).
+        max_cost: The maximum HQC cost for a single programs.
     """
 
     type: Literal["QuantinuumConfig"] = "QuantinuumConfig"
@@ -204,6 +218,7 @@ class QuantinuumConfig(BaseBackendConfig):
     # Parameters below are kwargs used in QuantinuumBackend.process_circuits().
     noisy_simulation: bool = True
     user_group: Optional[str] = None
+    max_batch_cost: int = 2000
     compiler_options: Optional[QuantinuumCompilerOptions] = None
     no_opt: bool = True
     allow_2q_gate_rebase: bool = False
@@ -250,6 +265,7 @@ class QulacsConfig(BaseBackendConfig):
 
     type: Literal["QulacsConfig"] = "QulacsConfig"
     result_type: str = "state_vector"
+    gpu_sim: bool = False
 
 
 class BaseSeleneConfig(BaseModel):
@@ -270,6 +286,15 @@ class BaseSeleneConfig(BaseModel):
     seed: int | None = Field(default=None)
     n_qubits: int = Field(ge=1)
 
+    @model_validator(mode="after")
+    def prevent_direct_instantiation(self) -> Self:
+        """Prevent direct instantiation of BaseSeleneConfig."""
+        if self.__class__ == BaseSeleneConfig:
+            raise TypeError(
+                f"{self.__class__.__name__} cannot be instantiated directly"
+            )
+        return self
+
 
 class SeleneQuestConfig(BaseBackendConfig, BaseSeleneConfig):
     """Selene QuEST statevector simulator.
@@ -282,7 +307,7 @@ class SeleneQuestConfig(BaseBackendConfig, BaseSeleneConfig):
         n_qubits: The maximum number of qubits to simulate. Limits apply for Selene QuEST in Nexus.
     """
 
-    type: Literal["SeleneQuest"] = "SeleneQuest"
+    type: Literal["SeleneQuestConfig"] = "SeleneQuestConfig"
 
     n_qubits: int = Field(ge=1, le=28)
 
@@ -303,7 +328,7 @@ class SeleneStimConfig(BaseBackendConfig, BaseSeleneConfig):
           before they are considered invalid.
     """
 
-    type: Literal["SeleneStim"] = "SeleneStim"
+    type: Literal["SeleneStimConfig"] = "SeleneStimConfig"
 
     angle_threshold: float = Field(default=1e-8, gt=0.0)
 
@@ -362,7 +387,7 @@ class SeleneCoinFlipConfig(BaseBackendConfig, BaseSeleneConfig):
           will return True.
     """
 
-    type: Literal["SeleneCoinFlip"] = "SeleneCoinFlip"
+    type: Literal["SeleneCoinFlipConfig"] = "SeleneCoinFlipConfig"
 
     bias: float = Field(default=0.5, ge=0.0, le=1.0)
 
@@ -380,7 +405,7 @@ class SeleneClassicalReplayConfig(BaseBackendConfig, BaseSeleneConfig):
         measurements: A list of lists of booleans, where each inner list represents the boolean
           measurement results for a single shot."""
 
-    type: Literal["SeleneClassicalReplay"] = "SeleneClassicalReplay"
+    type: Literal["SeleneClassicalReplayConfig"] = "SeleneClassicalReplayConfig"
 
     measurements: list[list[bool]] = Field(default_factory=list[list[bool]])
 
@@ -404,8 +429,3 @@ BackendConfig = Annotated[
     ],
     Field(discriminator="type"),
 ]
-
-config_name_to_class: Dict[str, BackendConfig] = {
-    config_type.__name__: config_type  # type: ignore
-    for config_type in BaseBackendConfig.__subclasses__()
-}

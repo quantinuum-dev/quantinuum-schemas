@@ -1,5 +1,7 @@
 """Additional configuration models for the Selene emulator."""
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -12,6 +14,8 @@ class SimpleRuntime(BaseModel):
         seed: Random seed for the runtime.
     """
 
+    type: Literal["SimpleRuntime"] = "SimpleRuntime"
+
     seed: int | None = Field(default=None)
 
 
@@ -22,6 +26,8 @@ class HeliosRuntime(BaseModel):
     Args:
         seed: Random seed for the runtime.
     """
+
+    type: Literal["HeliosRuntime"] = "HeliosRuntime"
 
     seed: int | None = Field(default=None)
 
@@ -35,6 +41,8 @@ class NoErrorModel(BaseModel):
     Args:
         seed: Random seed for the error model.
     """
+
+    type: Literal["NoErrorModel"] = "NoErrorModel"
 
     seed: int | None = Field(default=None)
 
@@ -51,6 +59,8 @@ class DepolarizingErrorModel(BaseModel):
         p_init: The error probability for initialization operations.
     """
 
+    type: Literal["DepolarizingErrorModel"] = "DepolarizingErrorModel"
+
     seed: int | None = Field(default=None)
     p_1q: float = Field(default=0.0, ge=0.0, le=1.0)
     p_2q: float = Field(default=0.0, ge=0.0, le=1.0)
@@ -65,6 +75,8 @@ class QSystemErrorModel(BaseModel):
         seed: Random seed for the error model.
         name: Name of the QSystem error model.
     """
+
+    type: Literal["QSystemErrorModel"] = "QSystemErrorModel"
 
     seed: int | None = Field(default=None)
     name: str = "alpha"
