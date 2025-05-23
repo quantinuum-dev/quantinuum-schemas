@@ -429,3 +429,8 @@ BackendConfig = Annotated[
     ],
     Field(discriminator="type"),
 ]
+
+config_name_to_class: Dict[str, BackendConfig] = {
+    config_type.__name__: config_type  # type: ignore
+    for config_type in BaseBackendConfig.__subclasses__()
+}
