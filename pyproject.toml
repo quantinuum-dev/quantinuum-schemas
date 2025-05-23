@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "quantinuum-schemas"
-version = "3.2.1"
+version = "3.2.2"
 description = "Shared data models for Quantinuum."
 authors = ["Matthew Burke <matthew.burke@quantinuum.com>"]
 readme = "README.md"

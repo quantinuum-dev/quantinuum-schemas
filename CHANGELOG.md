@@ -1,3 +1,10 @@
+## 3.2.2 (2025-05-23)
+
+
+### Fixed
+
+- Restore `config_name_to_class` function.
+
 ## 3.2.1 (2025-05-22)
 
 ### Fixed
