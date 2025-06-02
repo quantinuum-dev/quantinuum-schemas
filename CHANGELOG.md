@@ -1,3 +1,10 @@
+## 3.2.3 (2025-06-02)
+
+
+### Fixed
+
+- Correct the capitalization of CoinFlip to Coinflip for consistency with the selene approach (#24).
+
 ## 3.2.2 (2025-05-23)
 
 
