@@ -2,5 +2,5 @@
 
 {
   # https://devenv.sh/packages/
-  packages = [ pkgs.poetry pkgs.commitizen ];
+  packages = [ pkgs.poetry pkgs.commitizen pkgs.git ];
 }

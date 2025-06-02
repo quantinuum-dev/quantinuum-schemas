@@ -373,8 +373,8 @@ class SeleneLeanConfig(BaseBackendConfig, BaseSeleneConfig):
         return self
 
 
-class SeleneCoinFlipConfig(BaseBackendConfig, BaseSeleneConfig):
-    """Selene 'Coin Flip'  simulator. Doesn't maintain any quantum state and picks a random
+class SeleneCoinflipConfig(BaseBackendConfig, BaseSeleneConfig):
+    """Selene 'coinflip'  simulator. Doesn't maintain any quantum state and picks a random
     boolean value for each measurement.
 
     Args:
@@ -387,7 +387,7 @@ class SeleneCoinFlipConfig(BaseBackendConfig, BaseSeleneConfig):
           will return True.
     """
 
-    type: Literal["SeleneCoinFlipConfig"] = "SeleneCoinFlipConfig"
+    type: Literal["SeleneCoinflipConfig"] = "SeleneCoinflipConfig"
 
     bias: float = Field(default=0.5, ge=0.0, le=1.0)
 
@@ -424,7 +424,7 @@ BackendConfig = Annotated[
         SeleneQuestConfig,
         SeleneStimConfig,
         SeleneLeanConfig,
-        SeleneCoinFlipConfig,
+        SeleneCoinflipConfig,
         SeleneClassicalReplayConfig,
     ],
     Field(discriminator="type"),

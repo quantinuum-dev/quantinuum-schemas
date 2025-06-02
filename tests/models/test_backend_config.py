@@ -7,7 +7,7 @@ from quantinuum_schemas.models.backend_config import (
     AerConfig,
     QuantinuumCompilerOptions,
     SeleneClassicalReplayConfig,
-    SeleneCoinFlipConfig,
+    SeleneCoinflipConfig,
     SeleneLeanConfig,
     SeleneQuestConfig,
     SeleneStimConfig,
@@ -59,7 +59,7 @@ def test_handling_invalid_option() -> None:
     [
         SeleneQuestConfig,
         SeleneLeanConfig,
-        SeleneCoinFlipConfig,
+        SeleneCoinflipConfig,
         SeleneStimConfig,
         SeleneClassicalReplayConfig,
     ],
