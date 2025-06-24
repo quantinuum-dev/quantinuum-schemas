@@ -222,7 +222,7 @@ class QuantinuumConfig(BaseBackendConfig):
     # Parameters below are kwargs used in QuantinuumBackend.process_circuits().
     postprocess: bool = False
     noisy_simulation: bool = False
-    target_2qb_gate: Optional[str]
+    target_2qb_gate: Optional[str] = None
     user_group: Optional[str] = None
     max_batch_cost: int = 2000
     compiler_options: Optional[QuantinuumCompilerOptions] = None
