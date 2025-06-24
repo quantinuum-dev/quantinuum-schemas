@@ -58,6 +58,7 @@ class AerConfig(BaseBackendConfig):
     simulation_method: str = "automatic"
     crosstalk_params: Optional[CrosstalkParams] = None
     n_qubits: PositiveInt = 40
+    seed: Optional[int] = None
 
     @field_validator("noise_model", mode="before")
     @classmethod
@@ -216,7 +217,9 @@ class QuantinuumConfig(BaseBackendConfig):
     # Parameters below are passed into QuantinuumBackend.compilation_config in their own class.
     allow_implicit_swaps: bool = True
     # Parameters below are kwargs used in QuantinuumBackend.process_circuits().
-    noisy_simulation: bool = True
+    postprocess: bool = False
+    noisy_simulation: bool = False
+    target_2qb_gate: Optional[str]
     user_group: Optional[str] = None
     max_batch_cost: int = 2000
     compiler_options: Optional[QuantinuumCompilerOptions] = None
@@ -238,6 +241,7 @@ class IBMQConfig(BaseBackendConfig):
     project: str
     monitor: bool = False
     # Parameters below are kwargs used in IBMQBackend.process_circuits().
+    postprocess: bool = False
     simplify_initial: bool = False
 
 
@@ -252,6 +256,9 @@ class IBMQEmulatorConfig(BaseBackendConfig):
     hub: str
     group: str
     project: str
+    # Parameters below are kwargs
+    seed: Optional[int] = None
+    postprocess: bool = False
 
 
 class ProjectQConfig(BaseBackendConfig):
@@ -266,6 +273,8 @@ class QulacsConfig(BaseBackendConfig):
     type: Literal["QulacsConfig"] = "QulacsConfig"
     result_type: str = "state_vector"
     gpu_sim: bool = False
+    # Parameters below are kwargs
+    seed: Optional[int] = None
 
 
 class BaseSeleneConfig(BaseModel):
