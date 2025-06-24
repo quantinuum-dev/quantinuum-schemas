@@ -192,8 +192,9 @@ class QuantinuumConfig(BaseBackendConfig):
         machine_debug: Whether to run in machine debug mode.
         attempt_batching: Whether to attempt batching of circuits.
         allow_implicit_swaps: Whether to allow implicit swaps in the compilation process.
-        target_2qb_gate: The target 2-qubit gate for the compilation process.
+        postprocess: Apply pytket postprocess pass. 
         noisy_simulation: Whether to use a noisy simulation with an error model.
+        target_2qb_gate: The target 2-qubit gate for the compilation process.
         compiler_options: Additional options for the Quantinuum Systems compiler.
         no_opt: Whether to disable optimization in the compilation process.
         allow_2q_gate_rebase: Whether to allow 2-qubit gate rebase in the compilation process.
