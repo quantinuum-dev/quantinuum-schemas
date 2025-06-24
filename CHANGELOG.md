@@ -1,3 +1,9 @@
+## 3.2.4 (2025-06-24)
+
+### Fixed
+
+- Add missing kwargs to various BackendConfig models
+
 ## 3.2.3 (2025-06-02)
 
 
