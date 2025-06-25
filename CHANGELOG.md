@@ -1,3 +1,10 @@
+## 3.2.5 (2025-06-25)
+
+
+### Fixed
+
+- Add default value for qconfig target_2qb_gate (#28).
+
 ## 3.2.4 (2025-06-24)
 
 ### Fixed
