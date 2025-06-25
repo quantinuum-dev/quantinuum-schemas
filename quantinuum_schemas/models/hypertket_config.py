@@ -3,7 +3,9 @@
 from enum import Enum
 from typing import Annotated, Literal, Optional, Union
 
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from .base import BaseModel
 
 
 class RewriteSearchConfig(BaseModel):

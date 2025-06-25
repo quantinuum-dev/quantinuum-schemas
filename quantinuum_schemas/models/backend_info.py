@@ -8,7 +8,9 @@ from __future__ import annotations
 from logging import getLogger
 from typing import Any, NewType, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from .base import BaseModel
 
 logger = getLogger(__name__)
 

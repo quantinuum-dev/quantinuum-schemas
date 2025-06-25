@@ -5,9 +5,11 @@ from __future__ import annotations
 from typing import Annotated, Any, List, Literal, Optional, Tuple, Union
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import Field, field_validator
 
 from quantinuum_schemas.models.backend_info import Register
+
+from .base import BaseModel
 
 
 class QiskitBasicInstruction(BaseModel):
