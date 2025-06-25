@@ -28,9 +28,9 @@ from quantinuum_schemas.models.selene_config import (
     SimpleRuntime,
 )
 
-ST = TypeVar("ST", bound="BaseModel")
-
 from .base import BaseModel
+
+ST = TypeVar("ST", bound="BaseModel")
 
 
 class BaseBackendConfig(BaseModel, abc.ABC):
@@ -175,9 +175,9 @@ class QuantinuumCompilerOptions(BaseModel):
     ) -> Dict[str, Any]:
         """Check that compiler option values are supported types."""
         for key in values:
-            assert isinstance(
-                values[key], (str, int, bool, float, list)
-            ), "Compiler options must be str, bool int, float or a list of floats"
+            assert isinstance(values[key], (str, int, bool, float, list)), (
+                "Compiler options must be str, bool int, float or a list of floats"
+            )
             if isinstance(values[key], list):
                 for x in values[key]:
                     assert isinstance(x, float), "Lists must only contain floats"
@@ -193,7 +193,7 @@ class QuantinuumConfig(BaseBackendConfig):
         machine_debug: Whether to run in machine debug mode.
         attempt_batching: Whether to attempt batching of circuits.
         allow_implicit_swaps: Whether to allow implicit swaps in the compilation process.
-        postprocess: 
+        postprocess:
           Apply end-of-circuit simplifications and classical postprocessing
           to improve fidelity of results
         noisy_simulation: Whether to use a noisy simulation with an error model.

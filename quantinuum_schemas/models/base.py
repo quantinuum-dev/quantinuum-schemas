@@ -34,10 +34,10 @@ def orjson_dumps(obj: Any, *, default: Optional[Callable[[Any], Any]] = None) ->
     if default is None:
         default = default_with_extra_classes
     # orjson.dumps returns bytes, to match standard json.dumps we need to decode
-    return orjson.dumps(obj, default=default).decode()
+    return orjson.dumps(obj, default=default).decode()  # pylint: disable=no-member
 
 
-SerializableType = TypeVar("SerializableType", bound="BaseModel")
+SerializableType = TypeVar("SerializableType", bound="BaseModel")  # pylint: disable=invalid-name
 
 
 class BaseModel(PydanticBaseModel):
