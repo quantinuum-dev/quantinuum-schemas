@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 pydantic = "^2.6.0"
+orjson = "^3.10.18"
 
 
 [tool.poetry.group.dev.dependencies]
