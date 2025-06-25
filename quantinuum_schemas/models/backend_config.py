@@ -10,7 +10,6 @@ import abc
 from typing import Any, Dict, Literal, Optional, Type, TypeVar, Union
 
 from pydantic import (
-    BaseModel,
     ConfigDict,
     PositiveInt,
     field_validator,
@@ -30,6 +29,8 @@ from quantinuum_schemas.models.selene_config import (
 )
 
 ST = TypeVar("ST", bound="BaseModel")
+
+from .base import BaseModel
 
 
 class BaseBackendConfig(BaseModel, abc.ABC):

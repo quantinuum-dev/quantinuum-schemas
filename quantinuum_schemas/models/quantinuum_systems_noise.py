@@ -2,7 +2,7 @@
 
 from typing import Optional, Tuple, Union
 
-from pydantic import BaseModel
+from .base import BaseModel
 
 
 class UserErrorParams(BaseModel):
