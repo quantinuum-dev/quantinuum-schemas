@@ -18,5 +18,7 @@ def test_enum_serialization() -> None:
         qubit_reuse_config=QubitReuseConfig(dual_circuit_strategy=DualStrat.AUTO)
     )
 
-    serialised = config.to_serializable()
-    HyperTketConfig.from_serializable(serialised)
+    serialised = config.model_dump()
+
+    HyperTketConfig.model_validate(serialised)
+ 
