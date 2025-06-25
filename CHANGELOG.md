@@ -1,3 +1,10 @@
+## 3.2.6 (2025-06-25)
+
+### Fixed
+
+- Add BaseModel to deal with enums
+
+
 ## 3.2.5 (2025-06-25)
 
 
