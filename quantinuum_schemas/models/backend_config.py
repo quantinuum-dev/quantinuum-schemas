@@ -240,9 +240,8 @@ class IBMQConfig(BaseBackendConfig):
 
     type: Literal["IBMQConfig"] = "IBMQConfig"
     backend_name: str  # The quantum computer or simulator to run a circuit on.
-    hub: str
-    group: str
-    project: str
+    instance: str
+    region: Optional[str] = None
     monitor: bool = False
     # Parameters below are kwargs used in IBMQBackend.process_circuits().
     postprocess: bool = False
@@ -257,9 +256,8 @@ class IBMQEmulatorConfig(BaseBackendConfig):
 
     type: Literal["IBMQEmulatorConfig"] = "IBMQEmulatorConfig"
     backend_name: str  # The quantum computer to emulate.
-    hub: str
-    group: str
-    project: str
+    instance: str
+    region: Optional[str] = None
     # Parameters below are kwargs
     seed: Optional[int] = None
     postprocess: bool = False
