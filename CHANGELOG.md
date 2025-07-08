@@ -1,3 +1,10 @@
+## 4.0.0 (2025-07-08)
+
+
+### Fixed
+
+- Update ibmqconfig to match new instance format.
+
 ## 3.2.6 (2025-06-25)
 
 ### Fixed
