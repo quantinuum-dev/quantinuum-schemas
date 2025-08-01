@@ -13,13 +13,15 @@ class RewriteSearchConfig(BaseModel):
 
 
 class BruteForceOrderConfig(BaseModel):
-    """Performs all possible ordering and then estimates the ordering with the minimal number of qubits."""
+    """Performs all possible ordering and then estimates 
+    the ordering with the minimal number of qubits."""
 
     ordering_method: Literal["BruteForceOrder"] = "BruteForceOrder"
 
 
 class ConstrainedOptOrderConfig(BaseModel):
-    """Orders causal cones using a Constrained Programming Satisfiability (CP-SAT) model."""
+    """Orders causal cones using a Constrained Programming
+    Satisfiability (CP-SAT) model."""
 
     ordering_method: Literal["ConstrainedOptOrder"] = "ConstrainedOptOrder"
     time_limit: Annotated[int, Field(ge=0)] = (
