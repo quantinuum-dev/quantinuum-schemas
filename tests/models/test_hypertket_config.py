@@ -21,4 +21,3 @@ def test_enum_serialization() -> None:
     serialised = config.model_dump()
 
     HyperTketConfig.model_validate(serialised)
- 
