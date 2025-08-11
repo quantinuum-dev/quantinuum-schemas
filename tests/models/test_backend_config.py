@@ -6,8 +6,8 @@ from pydantic import ValidationError
 from quantinuum_schemas.models.backend_config import (
     AerConfig,
     BasicEmulatorConfig,
-    StandardEmulatorConfig,
     QuantinuumCompilerOptions,
+    StandardEmulatorConfig,
 )
 from quantinuum_schemas.models.emulator_config import (
     ClassicalReplaySimulator,

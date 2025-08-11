@@ -6,12 +6,12 @@ from quantinuum_schemas.models.backend_config import (
     AerUnitaryConfig,
     BasicEmulatorConfig,
     BraketConfig,
-    StandardEmulatorConfig,
     IBMQConfig,
     IBMQEmulatorConfig,
     ProjectQConfig,
     QuantinuumConfig,
     QulacsConfig,
+    StandardEmulatorConfig,
 )
 from quantinuum_schemas.models.emulator_config import (
     ClassicalReplaySimulator,
