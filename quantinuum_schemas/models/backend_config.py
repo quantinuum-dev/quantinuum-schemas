@@ -283,11 +283,9 @@ class BaseEmulatorConfig(BaseModel):
     """Shared configuration for Selene emulator instances. Not to be used directly.
 
     Args:
-        seed: Random seed for the emulator.
         n_qubits: The maximum number of qubits to simulate.
     """
 
-    seed: int | None = Field(default=None)
     n_qubits: int = Field(ge=1)
 
     @model_validator(mode="after")
@@ -308,7 +306,6 @@ class BasicEmulatorConfig(BaseEmulatorConfig, BaseBackendConfig):
         runtime: The runtime for the Selene emulator. Runtimes for specific systems
           will model system aspects such as ion transport.
         error_model: The error model for the Selene emulator.
-        seed: Random seed for the simulation engine.
         n_qubits: The maximum number of qubits to simulate.
     """
 
@@ -332,7 +329,6 @@ class StandardEmulatorConfig(BaseEmulatorConfig, BaseBackendConfig):
         runtime: The runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios)
           will model system aspects such as ion transport.
         error_model: The error model for the Selene emulator.
-        seed: Random seed for the simulation engine.
         n_qubits: The maximum number of qubits to simulate.
     """
 
