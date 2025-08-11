@@ -133,7 +133,7 @@ class MatrixProductStateSimulator(BaseModel):
           this number will be truncated.
     """
 
-    type: Literal["MPSSimulator"] = "MPSSimulator"
+    type: Literal["MatrixProductStateSimulator"] = "MatrixProductStateSimulator"
 
     seed: int | None = Field(default=None)
     backend: Literal["cpu", "cuda"] = "cpu"
