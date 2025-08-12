@@ -339,9 +339,9 @@ class StandardEmulatorConfig(BaseEmulatorConfig, BaseBackendConfig):
         | CoinflipSimulator
         | ClassicalReplaySimulator
     ) = Field(default_factory=StatevectorSimulator)
-    runtime: SimpleRuntime | HeliosRuntime = Field(default_factory=SimpleRuntime)
+    runtime: SimpleRuntime | HeliosRuntime = Field(default_factory=HeliosRuntime)
     error_model: NoErrorModel | DepolarizingErrorModel | QSystemErrorModel = Field(
-        default_factory=NoErrorModel
+        default_factory=QSystemErrorModel
     )
 
 
