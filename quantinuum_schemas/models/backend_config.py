@@ -309,6 +309,8 @@ class BasicEmulatorConfig(BaseEmulatorConfig, BaseBackendConfig):
         n_qubits: The maximum number of qubits to simulate.
     """
 
+    type: Literal["BasicEmulatorConfig"] = "BasicEmulatorConfig"
+
     simulator: (
         StatevectorSimulator
         | StabilizerSimulator
@@ -331,6 +333,8 @@ class StandardEmulatorConfig(BaseEmulatorConfig, BaseBackendConfig):
         error_model: The error model for the Selene emulator.
         n_qubits: The maximum number of qubits to simulate.
     """
+
+    type: Literal["StandardEmulatorConfig"] = "StandardEmulatorConfig"
 
     simulator: (
         StatevectorSimulator
