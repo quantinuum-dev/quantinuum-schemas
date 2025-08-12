@@ -15,7 +15,7 @@ class RewriteSearchConfig(BaseModel):
 
 
 class BruteForceOrderConfig(BaseModel):
-    """Performs all possible ordering and then estimates 
+    """Performs all possible ordering and then estimates
     the ordering with the minimal number of qubits."""
 
     ordering_method: Literal["BruteForceOrder"] = "BruteForceOrder"
@@ -55,11 +55,11 @@ class CustomOrderConfig(BaseModel):
 
 
 class DefaultOrderConfig(BaseModel):
-    """Switches the Ordering Method used depending 
-    on the number of Qubits in the Circuit. The 
-    following specifies the ordering method for 
-    a specific circuit width. 
-    
+    """Switches the Ordering Method used depending
+    on the number of Qubits in the Circuit. The
+    following specifies the ordering method for
+    a specific circuit width.
+
     * BruteForceOrder: n_qubits <= 9;
     * ConstrainedOptOrder: 9 < n_qubits <= 30;
     * LocalGreedyFirstNodeSearchOrder: 30 < n_qubits <= 1000;
@@ -79,15 +79,15 @@ OrderingConfig = Union[
 
 
 class DualStrat(Enum):
-    """Strategy for dual circuit compilation. 
-    
-    * DUAL peforms qubit reuse compilation on 
-    the dual of the circuit. 
-    * SINGLE disables use of the dual circuit 
-    during qubit reuse compilation. 
-    * AUTO performs qubit reuse compilation 
-    on both the circuit and its dual. The output 
-    circuit with the minimal number of qubits is 
+    """Strategy for dual circuit compilation.
+
+    * DUAL peforms qubit reuse compilation on
+    the dual of the circuit.
+    * SINGLE disables use of the dual circuit
+    during qubit reuse compilation.
+    * AUTO performs qubit reuse compilation
+    on both the circuit and its dual. The output
+    circuit with the minimal number of qubits is
     returned.
     """
 
@@ -97,8 +97,8 @@ class DualStrat(Enum):
 
 
 class QubitReuseConfig(BaseModel):
-    """Configuration for qubit reuse compilation pass. 
-    The DefaultOrderingConfig and DualStart.Auto are 
+    """Configuration for qubit reuse compilation pass.
+    The DefaultOrderingConfig and DualStart.Auto are
     specified by default."""
 
     enable_qubit_reuse: bool = False

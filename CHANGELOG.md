@@ -1,3 +1,11 @@
+## 5.0.0 (2025-08-12)
+
+
+### Added
+
+- Refactor selene emulator configs, replacing them with BasicEmulatorConfig and StandardEmulatorConfig.
+
+
 ## 4.0.0 (2025-07-08)
 
 

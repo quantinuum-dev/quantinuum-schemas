@@ -9,24 +9,24 @@ as our backend credential classes handle those.
 import abc
 from typing import Any, Dict, Literal, Optional, Type, TypeVar, Union
 
-from pydantic import (
-    ConfigDict,
-    PositiveInt,
-    field_validator,
-    model_validator,
-)
+from pydantic import ConfigDict, PositiveInt, field_validator, model_validator
 from pydantic.fields import Field
 from typing_extensions import Annotated, Self
 
 from quantinuum_schemas.models.aer_noise import AerNoiseModel, CrosstalkParams
-from quantinuum_schemas.models.quantinuum_systems_noise import UserErrorParams
-from quantinuum_schemas.models.selene_config import (
+from quantinuum_schemas.models.emulator_config import (
+    ClassicalReplaySimulator,
+    CoinflipSimulator,
     DepolarizingErrorModel,
     HeliosRuntime,
+    MatrixProductStateSimulator,
     NoErrorModel,
     QSystemErrorModel,
     SimpleRuntime,
+    StabilizerSimulator,
+    StatevectorSimulator,
 )
+from quantinuum_schemas.models.quantinuum_systems_noise import UserErrorParams
 
 from .base import BaseModel
 
@@ -175,9 +175,9 @@ class QuantinuumCompilerOptions(BaseModel):
     ) -> Dict[str, Any]:
         """Check that compiler option values are supported types."""
         for key in values:
-            assert isinstance(values[key], (str, int, bool, float, list)), (
-                "Compiler options must be str, bool int, float or a list of floats"
-            )
+            assert isinstance(
+                values[key], (str, int, bool, float, list)
+            ), "Compiler options must be str, bool int, float or a list of floats"
             if isinstance(values[key], list):
                 for x in values[key]:
                     assert isinstance(x, float), "Lists must only contain floats"
@@ -279,146 +279,74 @@ class QulacsConfig(BaseBackendConfig):
     seed: Optional[int] = None
 
 
-class BaseSeleneConfig(BaseModel):
+class BaseEmulatorConfig(BaseModel):
     """Shared configuration for Selene emulator instances. Not to be used directly.
 
     Args:
-        runtime: The runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios)
-          will model system aspects such as ion transport.
-        error_model: The error model for the Selene emulator.
-        seed: Random seed for the simulation engine.
         n_qubits: The maximum number of qubits to simulate.
     """
 
-    runtime: SimpleRuntime | HeliosRuntime = Field(default_factory=SimpleRuntime)
-    error_model: NoErrorModel | DepolarizingErrorModel | QSystemErrorModel = Field(
-        default_factory=NoErrorModel
-    )
-    seed: int | None = Field(default=None)
     n_qubits: int = Field(ge=1)
 
     @model_validator(mode="after")
     def prevent_direct_instantiation(self) -> Self:
-        """Prevent direct instantiation of BaseSeleneConfig."""
-        if self.__class__ == BaseSeleneConfig:
+        """Prevent direct instantiation of BaseEmulatorConfig."""
+        if self.__class__ == BaseEmulatorConfig:
             raise TypeError(
                 f"{self.__class__.__name__} cannot be instantiated directly"
             )
         return self
 
 
-class SeleneQuestConfig(BaseBackendConfig, BaseSeleneConfig):
-    """Selene QuEST statevector simulator.
+class BasicEmulatorConfig(BaseEmulatorConfig, BaseBackendConfig):
+    """Configuration for Quantinuum's basic emulator, based on our Selene toolkit.
 
     Args:
-        runtime: The runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios)
+        simulator: The simulator backend to use.
+        runtime: The runtime for the Selene emulator. Runtimes for specific systems
           will model system aspects such as ion transport.
         error_model: The error model for the Selene emulator.
-        seed: Random seed for the simulation engine.
-        n_qubits: The maximum number of qubits to simulate. Limits apply for Selene QuEST in Nexus.
+        n_qubits: The maximum number of qubits to simulate.
     """
 
-    type: Literal["SeleneQuestConfig"] = "SeleneQuestConfig"
+    type: Literal["BasicEmulatorConfig"] = "BasicEmulatorConfig"
 
-    n_qubits: int = Field(ge=1, le=28)
+    simulator: (
+        StatevectorSimulator
+        | StabilizerSimulator
+        | CoinflipSimulator
+        | ClassicalReplaySimulator
+    ) = Field(default_factory=StatevectorSimulator)
+    runtime: SimpleRuntime = Field(default_factory=SimpleRuntime)
+    error_model: NoErrorModel | DepolarizingErrorModel = Field(
+        default_factory=NoErrorModel
+    )
 
 
-class SeleneStimConfig(BaseBackendConfig, BaseSeleneConfig):
-    """Selene Stim stabilizer simulator. As Stim is a stabilizer simulator, it can only simulate
-    Clifford operations. We provide an angle threshold parameter for users to decide how far angles
-    can be away from pi/2 rotations on the bloch sphere before they are considered invalid.
-    This is to avoid numerical instability, or to inject approximations.
+class StandardEmulatorConfig(BaseEmulatorConfig, BaseBackendConfig):
+    """Configuration for Quantinuum's standard emulator, based on our Selene toolkit.
 
     Args:
+        simulator: The simulator backend to use.
         runtime: The runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios)
           will model system aspects such as ion transport.
         error_model: The error model for the Selene emulator.
-        seed: Random seed for the simulation engine.
         n_qubits: The maximum number of qubits to simulate.
-        angle_threshold: How far angles can be away from pi/2 rotations on the bloch sphere
-          before they are considered invalid.
     """
 
-    type: Literal["SeleneStimConfig"] = "SeleneStimConfig"
+    type: Literal["StandardEmulatorConfig"] = "StandardEmulatorConfig"
 
-    angle_threshold: float = Field(default=1e-8, gt=0.0)
-
-
-class SeleneLeanConfig(BaseBackendConfig, BaseSeleneConfig):
-    """Selene Lean (low-entanglement approximation engine) tensor network simulator.
-
-    Args:
-        runtime: The runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios)
-          will model system aspects such as ion transport.
-        error_model: The error model for the Selene emulator.
-        seed: Random seed for the simulation engine.
-        n_qubits: The maximum number of qubits to simulate.
-        backend: The classical compute backend to use.
-        precision: The floating point precision used in tensor calculations.
-        chi: The maximum value allowed for the dimension of the virtual bonds. Higher implies better
-          approximation but more computational resources. If not provided, chi will be unbounded.
-        truncation_fidelity: Every time a two-qubit gate is applied, the virtual bond will be
-          truncated to the minimum dimension that satisfies |<psi|phi>|^2 >= trucantion_fidelity,
-          where |psi> and |phi> are the states before and after truncation (both normalised).
-          If not provided, it will default to its maximum value 1.
-        zero_threshold: Any number below this value will be considered equal to zero.
-          Even when no chi or truncation_fidelity is provided, singular values below
-          this number will be truncated.
-    """
-
-    type: Literal["SeleneLeanConfig"] = "SeleneLeanConfig"
-
-    backend: Literal["cpu", "cuda"] = "cpu"
-    precision: Literal[32, 64] = 32
-    chi: int | None = Field(default=None, gt=0)
-    truncation_fidelity: float | None = Field(default=None, gt=0, le=1)
-    zero_threshold: float | None = Field(default=None, gt=0, le=1)
-
-    @model_validator(mode="after")
-    def check_valid_config(self) -> Self:
-        """Validate the configuration for the Selene emulator."""
-        if self.backend == "cpu" and self.chi is not None and self.chi > 256:
-            raise ValueError("CPU backend does not support chi > 256.")
-        if self.chi and self.truncation_fidelity:
-            raise ValueError("Cannot set both chi and truncation_fidelity.")
-        return self
-
-
-class SeleneCoinflipConfig(BaseBackendConfig, BaseSeleneConfig):
-    """Selene 'coinflip'  simulator. Doesn't maintain any quantum state and picks a random
-    boolean value for each measurement.
-
-    Args:
-        runtime: The runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios)
-          will model system aspects such as ion transport.
-        error_model: The error model for the Selene emulator.
-        seed: Random seed for the simulation engine.
-        n_qubits: The maximum number of qubits to simulate.
-        bias: The bias of the coin flip. This value is the probability that any given measurement
-          will return True.
-    """
-
-    type: Literal["SeleneCoinflipConfig"] = "SeleneCoinflipConfig"
-
-    bias: float = Field(default=0.5, ge=0.0, le=1.0)
-
-
-class SeleneClassicalReplayConfig(BaseBackendConfig, BaseSeleneConfig):
-    """Selene 'Classical Replay' simulator. This simulator allows a user to predefine the
-    results of measurements for each shot. No quantum operations are performed.
-
-    Args:
-        runtime: The runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios)
-          will model system aspects such as ion transport.
-        error_model: The error model for the Selene emulator.
-        seed: Random seed for the simulation engine.
-        n_qubits: The maximum number of qubits to simulate.
-        measurements: A list of lists of booleans, where each inner list represents the boolean
-          measurement results for a single shot."""
-
-    type: Literal["SeleneClassicalReplayConfig"] = "SeleneClassicalReplayConfig"
-
-    measurements: list[list[bool]] = Field(default_factory=list[list[bool]])
+    simulator: (
+        StatevectorSimulator
+        | StabilizerSimulator
+        | MatrixProductStateSimulator
+        | CoinflipSimulator
+        | ClassicalReplaySimulator
+    ) = Field(default_factory=StatevectorSimulator)
+    runtime: SimpleRuntime | HeliosRuntime = Field(default_factory=HeliosRuntime)
+    error_model: NoErrorModel | DepolarizingErrorModel | QSystemErrorModel = Field(
+        default_factory=QSystemErrorModel
+    )
 
 
 BackendConfig = Annotated[
@@ -432,11 +360,8 @@ BackendConfig = Annotated[
         IBMQEmulatorConfig,
         ProjectQConfig,
         QulacsConfig,
-        SeleneQuestConfig,
-        SeleneStimConfig,
-        SeleneLeanConfig,
-        SeleneCoinflipConfig,
-        SeleneClassicalReplayConfig,
+        BasicEmulatorConfig,
+        StandardEmulatorConfig,
     ],
     Field(discriminator="type"),
 ]

@@ -1,11 +1,6 @@
 """Base model definition for use in other models."""
 
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    List,
-    Union,
-)
+from typing import TYPE_CHECKING, Dict, List, Union
 
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import ConfigDict, Field
@@ -16,6 +11,7 @@ class BaseModel(PydanticBaseModel):
     """Custom Pydantic Base Model for the service."""
 
     model_config = ConfigDict(use_enum_values=True, extra="ignore")
+
 
 if TYPE_CHECKING:
     Int64 = int
