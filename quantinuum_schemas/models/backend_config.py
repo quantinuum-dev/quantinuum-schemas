@@ -349,6 +349,41 @@ class StandardEmulatorConfig(BaseEmulatorConfig, BaseBackendConfig):
     )
 
 
+class RunConstraints(BaseModel):
+    """Administrative parameters for running on Quantinuum Systems."""
+
+    attempt_batching: bool = False # # no batching for emulators (Helios onwards)?
+    max_batch_cost: int = 2000
+    max_cost: int = 100
+
+
+class HeliosConfig(BaseBackendConfig):
+    """Configuration for Quantinuum's Helios and emulators.
+    """
+
+    type: Literal["HeliosConfig"] = "HeliosConfig"
+
+    device_name: str
+
+    # how to determine the Helios in Nexus?
+    # device name 'Helios-1E-lite'
+
+    run_constraints: RunConstraints = Field(default_factory=RunConstraints)
+
+    ### Emulator configuration
+    # re-use simulator configs?
+    #simulator: str = "state-vector"
+    simulator: (
+        StatevectorSimulator
+        | StabilizerSimulator
+        | MatrixProductStateSimulator
+    ) = Field(default_factory=StatevectorSimulator)
+    # todo this will maybe replace UserErrorParams
+    error_model: NoErrorModel | QSystemErrorModel = Field(default_factory=QSystemErrorModel)
+
+    options: QuantinuumCompilerOptions | None = None
+
+
 BackendConfig = Annotated[
     Union[
         AerConfig,
