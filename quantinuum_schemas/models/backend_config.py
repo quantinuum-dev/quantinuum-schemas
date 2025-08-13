@@ -222,7 +222,7 @@ class QuantinuumConfig(BaseBackendConfig):
     allow_implicit_swaps: bool = True
     # Parameters below are kwargs used in QuantinuumBackend.process_circuits().
     postprocess: bool = False
-    noisy_simulation: bool = False
+    noisy_simulation: bool = True
     target_2qb_gate: Optional[str] = None
     user_group: Optional[str] = None
     max_batch_cost: int = 2000
