@@ -136,7 +136,7 @@ class MatrixProductStateSimulator(BaseModel):
     type: Literal["MatrixProductStateSimulator"] = "MatrixProductStateSimulator"
 
     seed: int | None = Field(default=None)
-    backend: Literal["cpu", "cuda"] = "cpu"
+    backend: Literal["auto", "cpu", "cuda"] = "auto"
     precision: Literal[32, 64] = 32
     chi: int | None = Field(default=None, gt=0)
     truncation_fidelity: float | None = Field(default=None, gt=0, le=1)

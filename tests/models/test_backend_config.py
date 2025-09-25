@@ -5,9 +5,9 @@ from pydantic import ValidationError
 
 from quantinuum_schemas.models.backend_config import (
     AerConfig,
-    BasicEmulatorConfig,
+    SeleneConfig,
     QuantinuumCompilerOptions,
-    StandardEmulatorConfig,
+    SelenePlusConfig,
 )
 from quantinuum_schemas.models.emulator_config import (
     ClassicalReplaySimulator,
@@ -63,22 +63,22 @@ def test_handling_invalid_option() -> None:
         ClassicalReplaySimulator,
     ],
 )
-def test_basic_emulator_config_roundtrip(
+def test_selene_config_roundtrip(
     runtime_class: type,
     error_model_class: type,
     simulator_class: type,
 ) -> None:
-    """Test roundtrip of BasicEmulatorConfig, importantly the ability to discriminate the
+    """Test roundtrip of SeleneConfig, importantly the ability to discriminate the
     error model and the runtime."""
 
-    config = BasicEmulatorConfig(
+    config = SeleneConfig(
         simulator=simulator_class(),
         runtime=runtime_class(),
         error_model=error_model_class(),
         n_qubits=4,
     )
 
-    reloaded_config = BasicEmulatorConfig.model_validate_json(config.model_dump_json())
+    reloaded_config = SeleneConfig.model_validate_json(config.model_dump_json())
 
     assert config == reloaded_config
     assert config.runtime == reloaded_config.runtime
@@ -99,24 +99,22 @@ def test_basic_emulator_config_roundtrip(
         ClassicalReplaySimulator,
     ],
 )
-def test_custom_emulator_config_roundtrip(
+def test_selene_plus_config_roundtrip(
     runtime_class: type,
     simulator_class: type,
     error_model_class: type,
 ) -> None:
-    """Test roundtrip of CustomEmulatorConfig, importantly the ability to discriminate the
+    """Test roundtrip of SelenePlusConfig, importantly the ability to discriminate the
     error model and the runtime."""
 
-    config = StandardEmulatorConfig(
+    config = SelenePlusConfig(
         runtime=runtime_class(),
         simulator=simulator_class(),
         error_model=error_model_class(),
         n_qubits=4,
     )
 
-    reloaded_config = StandardEmulatorConfig.model_validate_json(
-        config.model_dump_json()
-    )
+    reloaded_config = SelenePlusConfig.model_validate_json(config.model_dump_json())
 
     assert config == reloaded_config
     assert config.runtime == reloaded_config.runtime
