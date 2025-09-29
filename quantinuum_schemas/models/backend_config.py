@@ -263,11 +263,6 @@ class IBMQEmulatorConfig(BaseBackendConfig):
     postprocess: bool = False
 
 
-class ProjectQConfig(BaseBackendConfig):
-    """ProjectQ state vector simulator."""
-
-    type: Literal["ProjectQConfig"] = "ProjectQConfig"
-
 
 class QulacsConfig(BaseBackendConfig):
     """Qulacs simulator."""
@@ -358,7 +353,6 @@ BackendConfig = Annotated[
         QuantinuumConfig,
         IBMQConfig,
         IBMQEmulatorConfig,
-        ProjectQConfig,
         QulacsConfig,
         BasicEmulatorConfig,
         StandardEmulatorConfig,
