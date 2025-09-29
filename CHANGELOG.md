@@ -1,9 +1,11 @@
 ## 5.1.1 (2025-09-29)
 
+### Removed
+
+- Projectq support
+
 
 ## 5.1.0 (2025-08-13)
-
-- Remove projectq config
 
 
 ### Added
