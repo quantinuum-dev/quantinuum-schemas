@@ -1,27 +1,45 @@
-[tool.poetry]
+[project]
 name = "quantinuum-schemas"
 version = "6.0.0"
 description = "Shared data models for Quantinuum."
-authors = ["Matthew Burke <matthew.burke@quantinuum.com>"]
+authors = [
+    {name = "Matthew Burke", email = "matthew.burke@quantinuum.com"},
+    {name = "Quantinuum Nexus Team", email = "QCSupport@quantinuum.com"},
+]
 readme = "README.md"
-license = "Apache-2.0"
+license = { file = "LICENSE" }
+requires-python = ">=3.10, <4"
 
-[tool.poetry.dependencies]
-python = "^3.10"
-pydantic = "^2.6.0"
-orjson = "^3.10.18"
-pydantic-extra-types = "^2.10.5"
+dependencies = [
+    "pydantic >=2.6.0, <3",
+    "orjson  >=3.10.18, <4.0.0 ",
+    "pydantic-extra-types  >=2.10.5, <3.0.0",
+]
 
-[tool.poetry.group.dev.dependencies]
-black = "^25.1.0"
-isort = "^6.0.1"
-mypy = "^1.8.0"
-pylint = "^3.0.3"
-pytest = "^8.0.0"
-pytest-cov = "^4.1.0"
-commitizen = "^3.29.1"
+[dependency-groups]
+    dev = [
+        "ruff >0.11",
+        "mypy <2.0.0, >=1.10.0",
+        "pytest <9.0.0, >=8.0.0",
+        "pytest-cov <6.0.0, >=5.0.0",
+        "pylint>=3.3.7",
+        "pylint-pytest>=1.1.8",
+        "pyright>=1.1.302",
+        "commitizen  >=3.29.1, <4.0.0",
+]
+
+[project.urls]
+homepage = "https://github.com/CQCL/quantinuum-schemas"
+repository = "https://github.com/CQCL/quantinuum-schemas"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
+[tool.uv]
+package = true
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+strict = true
+allow_redefinition = true
