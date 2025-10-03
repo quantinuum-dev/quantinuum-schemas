@@ -7,6 +7,8 @@ on:
   push:
     branches:
       - main
+env:
+  UV_VERSION: "0.6.6"
     
 jobs:
   check:
@@ -21,23 +23,17 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: '0'
-      - name: Cache poetry
-        uses: actions/cache@v4
+      - name: Set up uv & venv
+        uses: astral-sh/setup-uv@v5
         with:
-          path: ~/.cache/pypoetry/virtualenvs
-          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ hashFiles('**/poetry.lock') }}
-      - name: Set up python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
           python-version: ${{ matrix.python-version }}
-      - name: Set up poetry
+          cache-dependency-glob: uv.lock
+      - name: Run checks
         run: |
-          pip install pip==22.2.1 poetry==1.8.2
-          poetry run pip install --upgrade pip
-      - name: Install dependencies
+          uv run scripts/ci_checks.sh
+      - name: Test with pytest
         run: |
-          poetry install --all-extras
-      - name: Perform '${{ matrix.action }}'
-        run: |
-          make ${{ matrix.action }}
+          uv run pytest tests
   

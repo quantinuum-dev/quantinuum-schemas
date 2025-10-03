@@ -175,9 +175,9 @@ class QuantinuumCompilerOptions(BaseModel):
     ) -> Dict[str, Any]:
         """Check that compiler option values are supported types."""
         for key in values:
-            assert isinstance(
-                values[key], (str, int, bool, float, list)
-            ), "Compiler options must be str, bool int, float or a list of floats"
+            assert isinstance(values[key], (str, int, bool, float, list)), (
+                "Compiler options must be str, bool int, float or a list of floats"
+            )
             if isinstance(values[key], list):
                 for x in values[key]:
                     assert isinstance(x, float), "Lists must only contain floats"
@@ -261,7 +261,6 @@ class IBMQEmulatorConfig(BaseBackendConfig):
     # Parameters below are kwargs
     seed: Optional[int] = None
     postprocess: bool = False
-
 
 
 class QulacsConfig(BaseBackendConfig):
