@@ -1,6 +1,6 @@
 [project]
 name = "quantinuum-schemas"
-version = "6.0.0"
+version = "7.0.0"
 description = "Shared data models for Quantinuum."
 authors = [
     {name = "Matthew Burke", email = "matthew.burke@quantinuum.com"},
@@ -21,7 +21,7 @@ dependencies = [
         "ruff >0.11",
         "mypy <2.0.0, >=1.10.0",
         "pytest <9.0.0, >=8.0.0",
-        "pytest-cov <6.0.0, >=5.0.0",
+        "pytest-cov <7.0.0, >=5.0.0",
         "pylint>=3.3.7",
         "pylint-pytest>=1.1.8",
         "pyright>=1.1.302",

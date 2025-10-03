@@ -292,8 +292,8 @@ class BaseEmulatorConfig(BaseModel):
         return self
 
 
-class BasicEmulatorConfig(BaseEmulatorConfig, BaseBackendConfig):
-    """Configuration for Quantinuum's basic emulator, based on our Selene toolkit.
+class SeleneConfig(BaseEmulatorConfig, BaseBackendConfig):
+    """Configuration for Quantinuum's Selene.
 
     Args:
         simulator: The simulator backend to use.
@@ -303,7 +303,7 @@ class BasicEmulatorConfig(BaseEmulatorConfig, BaseBackendConfig):
         n_qubits: The maximum number of qubits to simulate.
     """
 
-    type: Literal["BasicEmulatorConfig"] = "BasicEmulatorConfig"
+    type: Literal["SeleneConfig"] = "SeleneConfig"
 
     simulator: (
         StatevectorSimulator
@@ -317,8 +317,8 @@ class BasicEmulatorConfig(BaseEmulatorConfig, BaseBackendConfig):
     )
 
 
-class StandardEmulatorConfig(BaseEmulatorConfig, BaseBackendConfig):
-    """Configuration for Quantinuum's standard emulator, based on our Selene toolkit.
+class SelenePlusConfig(BaseEmulatorConfig, BaseBackendConfig):
+    """Configuration for Quantinuum's Selene Plus, including advanced runtimes and simulators.
 
     Args:
         simulator: The simulator backend to use.
@@ -328,7 +328,7 @@ class StandardEmulatorConfig(BaseEmulatorConfig, BaseBackendConfig):
         n_qubits: The maximum number of qubits to simulate.
     """
 
-    type: Literal["StandardEmulatorConfig"] = "StandardEmulatorConfig"
+    type: Literal["SelenePlusConfig"] = "SelenePlusConfig"
 
     simulator: (
         StatevectorSimulator
@@ -353,8 +353,8 @@ BackendConfig = Annotated[
         IBMQConfig,
         IBMQEmulatorConfig,
         QulacsConfig,
-        BasicEmulatorConfig,
-        StandardEmulatorConfig,
+        SeleneConfig,
+        SelenePlusConfig,
     ],
     Field(discriminator="type"),
 ]

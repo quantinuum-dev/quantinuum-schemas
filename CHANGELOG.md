@@ -1,3 +1,11 @@
+## 7.0.0 (2025-10-03)
+
+
+### Added
+
+- SeleneConfig and SelenePlusConfig.
+- `auto` computational backend for MatrixProductState simulator.
+
 ## 6.0.0 (2025-09-29)
 
 ### Removed
