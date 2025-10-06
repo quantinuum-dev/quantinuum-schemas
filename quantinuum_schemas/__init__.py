@@ -24,6 +24,10 @@ from quantinuum_schemas.models.emulator_config import (
     StabilizerSimulator,
     StatevectorSimulator,
 )
+from quantinuum_schemas.models.quantinuum_systems_noise import (
+    HeliosErrorParams,
+    UserErrorParams,
+)
 
 __all__ = [
     "AerConfig",
@@ -46,4 +50,6 @@ __all__ = [
     "CoinflipSimulator",
     "MatrixProductStateSimulator",
     "ClassicalReplaySimulator",
+    "HeliosErrorParams",
+    "UserErrorParams",
 ]
