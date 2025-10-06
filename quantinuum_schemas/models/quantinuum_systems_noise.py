@@ -67,7 +67,7 @@ class HeliosErrorParams(BaseModel):
     Error model configuration for emulation of Quantinuum's Helios System.
 
     parameters:
-        p_prep: Probability of error during preparation. Alias: p_init.
+        p_init: Probability of error during preparation. Alias: p_prep.
         p_meas_0: Probability of flipping 0 to 1 during measurement.
         p_meas_1: Probability of flipping 1 to 0 during measurement.
         p1: Probability of error after single-qubit gates.
@@ -89,7 +89,7 @@ class HeliosErrorParams(BaseModel):
           two-qubit.
         scale: Overall scaling factor.
         memory_scale: Memory scaling factor.
-        prep_scale: Initial scaling factor. Alias: init_scale.
+        init_scale: Initial scaling factor. Alias: prep_scale.
         meas_scale: Measurement scaling factor.
         p1_scale: Single-qubit gate scaling factor.
         p2_scale: Two-qubit gate scaling factor.
@@ -110,13 +110,15 @@ class HeliosErrorParams(BaseModel):
         p_meas_crosstalk_scale: Measurement crosstalk rescale factor.
         p_prep_crosstalk_scale: Preparation crosstalk rescale factor.
         crosstalk_per_gate: Whether to apply crosstalk on a per-gate basis.
-        p_idle_linear_rate: Linear rate for idle noise.
-        p_idle_quadratic_rate: Quadratic rate for idle noise.
+        linear_dephasing_rate: Linear rate for idle noise.
+          Alias: p_idle_linear_rate.
+        quadratic_dephasing_rate: Quadratic rate for idle noise.
+          Alias: p_idle_quadratic_rate.
         p2_idle: Stochastic idle noise after each two-qubit gate.
         p_idle_linear_model: Pauli model for linear idle noise in a comma-delimited format.
     """
 
-    p_prep: float = Field(default=0.0, alias="p_init", ge=0.0, le=1.0)
+    p_init: float = Field(default=0.0, alias="p_prep", ge=0.0, le=1.0)
     p_meas_0: float = Field(default=0.0, ge=0.0, le=1.0)
     p_meas_1: float = Field(default=0.0, ge=0.0, le=1.0)
     p1: float = Field(default=0.0, ge=0.0, le=1.0)
@@ -132,7 +134,7 @@ class HeliosErrorParams(BaseModel):
     p2_seepage_prob: float = Field(default=0.0, ge=0.0, le=1.0)
     scale: float = Field(default=0.0, ge=0.0)
     memory_scale: float = Field(default=0.0, ge=0.0)
-    prep_scale: float = Field(default=0.0, alias="init_scale", ge=0.0)
+    init_scale: float = Field(default=0.0, alias="prep_scale", ge=0.0)
     meas_scale: float = Field(default=0.0, ge=0.0)
     p1_scale: float = Field(default=0.0, ge=0.0)
     p2_scale: float = Field(default=0.0, ge=0.0)
@@ -155,8 +157,12 @@ class HeliosErrorParams(BaseModel):
     p_meas_crosstalk_scale: float = 1.0
     p_prep_crosstalk_scale: float = 1.0
     crosstalk_per_gate: bool | None = None
-    p_idle_linear_rate: float = Field(default=0.0, ge=0.0)
-    p_idle_quadratic_rate: float = Field(default=0.0, ge=0.0)
+    linear_dephasing_rate: float = Field(
+        default=0.0, alias="p_idle_linear_rate", ge=0.0
+    )
+    quadratic_dephasing_rate: float = Field(
+        default=0.0, alias="p_idle_quadratic_rate", ge=0.0
+    )
     p2_idle: float = Field(default=0.0, ge=0.0)
     p_idle_linear_model: dict[str, float] = Field(default_factory=dict)
 
