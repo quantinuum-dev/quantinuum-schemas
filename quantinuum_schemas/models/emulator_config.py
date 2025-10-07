@@ -5,6 +5,8 @@ from typing import Literal
 from pydantic import BaseModel, Field, model_validator
 from typing_extensions import Self
 
+from quantinuum_schemas.models.quantinuum_systems_noise import HeliosErrorParams
+
 
 class SimpleRuntime(BaseModel):
     """A 'simple' runtime for the Selene emulator.
@@ -70,7 +72,8 @@ class DepolarizingErrorModel(BaseModel):
 
 
 class QSystemErrorModel(BaseModel):
-    """Model for simulating error for a specific QSystem via Selene.
+    """Preconfigured Error Model for simulating error for a specific QSystem via Selene.
+    Will use a preconfiguration of the error model that is specified by the name parameter.
 
     Args:
         seed: Random seed for the error model.
@@ -81,6 +84,20 @@ class QSystemErrorModel(BaseModel):
 
     seed: int | None = Field(default=None)
     name: str = "alpha"
+
+
+class HeliosErrorModel(BaseModel):
+    """Configurable Error Model for simulating error for the Helios system via Selene.
+
+    Args:
+        seed: Random seed for the error model.
+        error_params: Parameters for the Helios error model.
+    """
+
+    type: Literal["HeliosErrorModel"] = "HeliosErrorModel"
+
+    seed: int | None = Field(default=None)
+    error_params: HeliosErrorParams = Field(default_factory=HeliosErrorParams)
 
 
 class StatevectorSimulator(BaseModel):

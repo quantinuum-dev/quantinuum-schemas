@@ -5,7 +5,7 @@ These do not include any parameters that are used to pass access tokens or other
 as our backend credential classes handle those.
 """
 
-# pylint: disable=too-many-lines
+# pylint: disable=too-many-lines,no-member
 import abc
 from typing import Any, Dict, Literal, Optional, Type, TypeVar, Union
 
@@ -18,6 +18,7 @@ from quantinuum_schemas.models.emulator_config import (
     ClassicalReplaySimulator,
     CoinflipSimulator,
     DepolarizingErrorModel,
+    HeliosErrorModel,
     HeliosRuntime,
     MatrixProductStateSimulator,
     NoErrorModel,
@@ -338,9 +339,34 @@ class SelenePlusConfig(BaseEmulatorConfig, BaseBackendConfig):
         | ClassicalReplaySimulator
     ) = Field(default_factory=StatevectorSimulator)
     runtime: SimpleRuntime | HeliosRuntime = Field(default_factory=HeliosRuntime)
-    error_model: NoErrorModel | DepolarizingErrorModel | QSystemErrorModel = Field(
-        default_factory=QSystemErrorModel
-    )
+    error_model: (
+        NoErrorModel | DepolarizingErrorModel | QSystemErrorModel | HeliosErrorModel
+    ) = Field(default_factory=QSystemErrorModel)
+
+    @model_validator(mode="after")
+    def validate_runtime_and_error_model(self) -> Self:
+        """Validate that the runtime and error model are compatible."""
+        if isinstance(self.error_model, (QSystemErrorModel, HeliosErrorModel)):
+            if not isinstance(self.runtime, HeliosRuntime):
+                raise ValueError(
+                    f"error_model of type: {self.error_model.__class__.__name__} "
+                    "can only be used with runtime of type: HeliosRuntime"
+                )
+        if isinstance(self.error_model, HeliosErrorModel):
+            if isinstance(self.simulator, StabilizerSimulator):
+                if self.error_model.error_params.coherent_dephasing is False:
+                    raise ValueError(
+                        "HeliosErrorModel with StabilizerSimulator must have "
+                        "coherent_dephasing set to True"
+                    )
+            else:
+                if self.error_model.error_params.coherent_dephasing is True:
+                    raise ValueError(
+                        "HeliosErrorModel with non-StabilizerSimulator must have "
+                        "coherent_dephasing set to False"
+                    )
+
+        return self
 
 
 BackendConfig = Annotated[
