@@ -151,7 +151,7 @@ class HeliosErrorParams(BaseModel):
         default=0.0, alias="p_prep_crosstalk", ge=0.0, le=1.0
     )
     noiseless_gates: list[str] = Field(default_factory=list)
-    coherent_dephasing: bool = False
+    coherent_dephasing: bool = True
     coherent_to_incoherent_factor: float = 1.5
     leak2depolar: bool = False
     p_meas_crosstalk_scale: float = 1.0
