@@ -73,7 +73,7 @@ class DepolarizingErrorModel(BaseModel):
 
 class QSystemErrorModel(BaseModel):
     """Preconfigured Error Model for simulating error for a specific QSystem via Selene.
-    Will use a preconfiguration of the error model that is specified by the name parameter.
+    Will use a preconfiguration of the error model as specified by the name parameter.
 
     Args:
         seed: Random seed for the error model.
@@ -166,6 +166,8 @@ class MatrixProductStateSimulator(BaseModel):
             raise ValueError("CPU backend does not support chi > 256.")
         if self.chi and self.truncation_fidelity:
             raise ValueError("Cannot set both chi and truncation_fidelity.")
+        if self.backend != "auto":
+            raise ValueError("Only backend='auto' is supported at this time.")
         return self
 
 
