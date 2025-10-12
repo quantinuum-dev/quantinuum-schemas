@@ -88,7 +88,7 @@ class QubitReuseConfig(BaseModel):
 class LeakageDetectionConfig(BaseModel):
     """Configuration for the leakage detection gadget compilation pass."""
 
-    enable_leakage_detection: int 
+    enable_leakage_detection: int
     n_device_qubits: int
 
 
