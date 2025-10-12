@@ -97,3 +97,4 @@ class HyperTketConfig(BaseModel):
 
     rewrite_search_config: RewriteSearchConfig = RewriteSearchConfig()
     qubit_reuse_config: Optional[QubitReuseConfig] = None
+    leakage_detection_config: Optional[LeakageDetectionConfig]
