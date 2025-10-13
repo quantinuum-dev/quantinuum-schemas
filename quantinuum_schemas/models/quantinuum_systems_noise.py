@@ -132,13 +132,13 @@ class HeliosErrorParams(BaseModel):
     p_prep_leak_ratio: float = Field(default=0.0, ge=0.0, le=1.0)
     p1_seepage_prob: float = Field(default=0.0, ge=0.0, le=1.0)
     p2_seepage_prob: float = Field(default=0.0, ge=0.0, le=1.0)
-    scale: float = Field(default=0.0, ge=0.0)
-    memory_scale: float = Field(default=0.0, ge=0.0)
-    init_scale: float = Field(default=0.0, alias="prep_scale", ge=0.0)
-    meas_scale: float = Field(default=0.0, ge=0.0)
-    p1_scale: float = Field(default=0.0, ge=0.0)
-    p2_scale: float = Field(default=0.0, ge=0.0)
-    emission_scale: float = Field(default=0.0, ge=0.0)
+    scale: float = Field(default=1.0, ge=0.0)
+    memory_scale: float = Field(default=1.0, ge=0.0)
+    init_scale: float = Field(default=1.0, alias="prep_scale", ge=0.0)
+    meas_scale: float = Field(default=1.0, ge=0.0)
+    p1_scale: float = Field(default=1.0, ge=0.0)
+    p2_scale: float = Field(default=1.0, ge=0.0)
+    emission_scale: float = Field(default=1.0, ge=0.0)
     przz_a: float | None = None
     przz_b: float | None = None
     przz_c: float | None = None
