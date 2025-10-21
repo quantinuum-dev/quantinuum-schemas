@@ -1,3 +1,10 @@
+## 7.1.0 (2025-10-21)
+
+
+### Added
+
+- Add leakage detection config (#41).
+
 ## 7.0.0 (2025-10-03)
 
 
