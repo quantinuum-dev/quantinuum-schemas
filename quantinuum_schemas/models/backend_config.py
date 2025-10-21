@@ -418,7 +418,7 @@ class HeliosConfig(BaseBackendConfig):
 
         if self.max_cost is None:
             if (
-                not self.system_name.endswith("SC") 
+                not self.system_name.endswith("SC")
                 and self.system_name not in KNOWN_NEXUS_HELIOS_EMULATORS
             ):
                 raise ValueError(f"max_cost must be set for {self.system_name}.")

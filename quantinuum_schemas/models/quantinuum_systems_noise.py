@@ -118,7 +118,13 @@ class HeliosErrorParams(BaseModel):
         p_idle_linear_model: Pauli model for linear idle noise in a comma-delimited format.
     """
 
-    p_init: float = Field(default=0.0, alias="p_prep", ge=0.0, le=1.0, validation_alias= AliasChoices("p_init", "p_prep"))
+    p_init: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        validation_alias=AliasChoices("p_init", "p_prep"),
+        serialization_alias="p_prep",
+    )
     p_meas_0: float = Field(default=0.0, ge=0.0, le=1.0)
     p_meas_1: float = Field(default=0.0, ge=0.0, le=1.0)
     p1: float = Field(default=0.0, ge=0.0, le=1.0)
@@ -134,7 +140,12 @@ class HeliosErrorParams(BaseModel):
     p2_seepage_prob: float = Field(default=0.0, ge=0.0, le=1.0)
     scale: float = Field(default=1.0, ge=0.0)
     memory_scale: float = Field(default=1.0, ge=0.0)
-    init_scale: float = Field(default=1.0, alias="prep_scale", ge=0.0, validation_alias= AliasChoices("init_scale", "prep_scale"))
+    init_scale: float = Field(
+        default=1.0,
+        ge=0.0,
+        validation_alias=AliasChoices("init_scale", "prep_scale"),
+        serialization_alias="prep_scale",
+    )
     meas_scale: float = Field(default=1.0, ge=0.0)
     p1_scale: float = Field(default=1.0, ge=0.0)
     p2_scale: float = Field(default=1.0, ge=0.0)
@@ -145,10 +156,18 @@ class HeliosErrorParams(BaseModel):
     przz_d: float | None = None
     przz_power: float = 1.0
     p_crosstalk_meas: float = Field(
-        default=0.0, alias="p_meas_crosstalk", ge=0.0, le=1.0, validation_alias= AliasChoices("p_crosstalk_meas", "p_meas_crosstalk")
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        validation_alias=AliasChoices("p_crosstalk_meas", "p_meas_crosstalk"),
+        serialization_alias="p_meas_crosstalk",
     )
     p_crosstalk_init: float = Field(
-        default=0.0, alias="p_prep_crosstalk", ge=0.0, le=1.0, validation_alias= AliasChoices("p_crosstalk_init", "p_prep_crosstalk")
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        validation_alias=AliasChoices("p_crosstalk_init", "p_prep_crosstalk"),
+        serialization_alias="p_prep_crosstalk",
     )
     noiseless_gates: list[str] = Field(default_factory=list)
     coherent_dephasing: bool = True
@@ -158,10 +177,18 @@ class HeliosErrorParams(BaseModel):
     p_prep_crosstalk_scale: float = 1.0
     crosstalk_per_gate: bool | None = None
     linear_dephasing_rate: float = Field(
-        default=0.0, alias="p_idle_linear_rate", ge=0.0, validation_alias= AliasChoices("linear_dephasing_rate", "p_idle_linear_rate")
+        default=0.0,
+        ge=0.0,
+        validation_alias=AliasChoices("linear_dephasing_rate", "p_idle_linear_rate"),
+        serialization_alias="p_idle_linear_rate",
     )
     quadratic_dephasing_rate: float = Field(
-        default=0.0, alias="p_idle_quadratic_rate", ge=0.0, validation_alias= AliasChoices("quadratic_dephasing_rate", "p_idle_quadratic_rate")
+        default=0.0,
+        ge=0.0,
+        validation_alias=AliasChoices(
+            "quadratic_dephasing_rate", "p_idle_quadratic_rate"
+        ),
+        serialization_alias="p_idle_quadratic_rate",
     )
     p2_idle: float = Field(default=0.0, ge=0.0)
     p_idle_linear_model: dict[str, float] = Field(default_factory=dict)
