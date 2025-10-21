@@ -379,7 +379,7 @@ class SelenePlusConfig(BaseEmulatorConfig, BaseBackendConfig):
         return self
 
 
-class HeliosEmulatorConfig(BaseModel):
+class HeliosEmulatorConfig(BaseEmulatorConfig):
     """Configuration for Helios emulator systems."""
 
     n_qubits: int | None = None
@@ -403,7 +403,7 @@ class HeliosConfig(BaseBackendConfig):
     type: Literal["HeliosConfig"] = "HeliosConfig"
 
     system_name: str = "Helios-1"
-    emulation_config: HeliosEmulatorConfig | None = None
+    emulator_config: HeliosEmulatorConfig | None = None
 
     max_cost: int | None = None
 
@@ -416,10 +416,14 @@ class HeliosConfig(BaseBackendConfig):
     def check_valid_config(self) -> Self:
         """Perform simple configuration validation."""
 
-        if not self.system_name.endswith("SC") and self.max_cost is None:
-            raise ValueError("max_cost must be set for non-checker systems.")
+        if self.max_cost is None:
+            if (
+                not self.system_name.endswith("SC") 
+                and self.system_name not in KNOWN_NEXUS_HELIOS_EMULATORS
+            ):
+                raise ValueError(f"max_cost must be set for {self.system_name}.")
 
-        if self.emulation_config is not None:
+        if self.emulator_config is not None:
             if self.attempt_batching:
                 raise ValueError("Batching not available for emulators.")
             if self.system_name in KNOWN_NEXUS_HELIOS_EMULATORS:
@@ -428,25 +432,25 @@ class HeliosConfig(BaseBackendConfig):
                         f"max_cost not currently supported for {self.system_name}"
                     )
             if self.system_name not in KNOWN_NEXUS_HELIOS_EMULATORS:
-                if self.emulation_config.simulator.type == "ClassicalReplaySimulator":
+                if self.emulator_config.simulator.type == "ClassicalReplaySimulator":
                     raise ValueError(
                         f"ClassicalReplaySimulator is only available for "
                         f"emulators in: {KNOWN_NEXUS_HELIOS_EMULATORS}"
                     )
-                if self.emulation_config.error_model.type == "DepolarizingErrorModel":
+                if self.emulator_config.error_model.type == "DepolarizingErrorModel":
                     raise ValueError(
                         f"DepolarizingErrorModel is only available for "
                         f"emulators in: {KNOWN_NEXUS_HELIOS_EMULATORS}"
                     )
-                if self.emulation_config.runtime.seed is not None:
+                if self.emulator_config.runtime.seed is not None:
                     raise ValueError(
                         f"runtime.seed will be ignored for {self.system_name}"
                     )
-                if self.emulation_config.simulator.seed is not None:
+                if self.emulator_config.simulator.seed is not None:
                     raise ValueError(
                         f"simulator.seed will be ignored for {self.system_name}"
                     )
-                if self.emulation_config.error_model.seed is not None:
+                if self.emulator_config.error_model.seed is not None:
                     raise ValueError(
                         f"error_model.seed will be ignored for {self.system_name}"
                     )

@@ -11,6 +11,8 @@ from quantinuum_schemas.models.backend_config import (
     QuantinuumConfig,
     QulacsConfig,
     SelenePlusConfig,
+    HeliosConfig,
+    HeliosEmulatorConfig,
 )
 from quantinuum_schemas.models.emulator_config import (
     ClassicalReplaySimulator,
@@ -42,6 +44,8 @@ __all__ = [
     "SeleneConfig",
     "SelenePlusConfig",
     "SimpleRuntime",
+    "HeliosConfig",
+    "HeliosEmulatorConfig",
     "HeliosRuntime",
     "NoErrorModel",
     "DepolarizingErrorModel",
