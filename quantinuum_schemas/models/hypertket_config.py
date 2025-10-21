@@ -109,8 +109,16 @@ class QubitReuseConfig(BaseModel):
     dual_circuit_strategy: Optional[DualStrat] = DualStrat.AUTO
 
 
+class LeakageDetectionConfig(BaseModel):
+    """Configuration for the leakage detection gadget compilation pass."""
+
+    enable_leakage_detection: int
+    n_device_qubits: int
+
+
 class HyperTketConfig(BaseModel):
     """Configuration for HyperTKET compilation."""
 
     rewrite_search_config: RewriteSearchConfig = RewriteSearchConfig()
     qubit_reuse_config: Optional[QubitReuseConfig] = None
+    leakage_detection_config: Optional[LeakageDetectionConfig] = None
