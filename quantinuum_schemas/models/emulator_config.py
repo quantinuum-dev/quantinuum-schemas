@@ -86,7 +86,7 @@ class QSystemErrorModel(BaseModel):
     name: str = "alpha"
 
 
-class HeliosErrorModel(BaseModel):
+class HeliosCustomErrorModel(BaseModel):
     """Configurable Error Model for simulating error for the Helios system via Selene.
 
     Args:
@@ -94,7 +94,7 @@ class HeliosErrorModel(BaseModel):
         error_params: Parameters for the Helios error model.
     """
 
-    type: Literal["HeliosErrorModel"] = "HeliosErrorModel"
+    type: Literal["HeliosCustomErrorModel"] = "HeliosCustomErrorModel"
 
     seed: int | None = Field(default=None)
     error_params: HeliosErrorParams = Field(default_factory=HeliosErrorParams)

@@ -18,7 +18,7 @@ from quantinuum_schemas.models.emulator_config import (
     ClassicalReplaySimulator,
     CoinflipSimulator,
     DepolarizingErrorModel,
-    HeliosErrorModel,
+    HeliosCustomErrorModel,
     HeliosRuntime,
     MatrixProductStateSimulator,
     NoErrorModel,
@@ -350,19 +350,22 @@ class SelenePlusConfig(BaseEmulatorConfig, BaseBackendConfig):
     ) = Field(default_factory=StatevectorSimulator)
     runtime: SimpleRuntime | HeliosRuntime = Field(default_factory=HeliosRuntime)
     error_model: (
-        NoErrorModel | DepolarizingErrorModel | QSystemErrorModel | HeliosErrorModel
+        NoErrorModel
+        | DepolarizingErrorModel
+        | QSystemErrorModel
+        | HeliosCustomErrorModel
     ) = Field(default_factory=QSystemErrorModel)
 
     @model_validator(mode="after")
     def validate_runtime_and_error_model(self) -> Self:
         """Validate that the runtime and error model are compatible."""
-        if isinstance(self.error_model, (QSystemErrorModel, HeliosErrorModel)):
+        if isinstance(self.error_model, (QSystemErrorModel, HeliosCustomErrorModel)):
             if not isinstance(self.runtime, HeliosRuntime):
                 raise ValueError(
                     f"error_model of type: {self.error_model.__class__.__name__} "
                     "can only be used with runtime of type: HeliosRuntime"
                 )
-        if isinstance(self.error_model, HeliosErrorModel):
+        if isinstance(self.error_model, HeliosCustomErrorModel):
             if isinstance(self.simulator, StabilizerSimulator):
                 if self.error_model.error_params.coherent_dephasing is False:
                     raise ValueError(
@@ -392,7 +395,10 @@ class HeliosEmulatorConfig(BaseEmulatorConfig):
         | ClassicalReplaySimulator
     ) = Field(default_factory=StatevectorSimulator)
     error_model: (
-        NoErrorModel | DepolarizingErrorModel | QSystemErrorModel | HeliosErrorModel
+        NoErrorModel
+        | DepolarizingErrorModel
+        | QSystemErrorModel
+        | HeliosCustomErrorModel
     ) = Field(default_factory=QSystemErrorModel)
     runtime: HeliosRuntime = Field(default_factory=HeliosRuntime)
 
