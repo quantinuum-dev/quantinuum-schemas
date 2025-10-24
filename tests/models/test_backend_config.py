@@ -107,6 +107,16 @@ def test_selene_plus_config_roundtrip(
     """Test roundtrip of SelenePlusConfig, importantly the ability to discriminate the
     error model and the runtime."""
 
+    if error_model_class is QSystemErrorModel and runtime_class is not HeliosRuntime:
+        with pytest.raises(ValidationError):
+            SelenePlusConfig(
+                runtime=runtime_class(),
+                simulator=simulator_class(),
+                error_model=error_model_class(),
+                n_qubits=4,
+            )
+        return
+
     config = SelenePlusConfig(
         runtime=runtime_class(),
         simulator=simulator_class(),

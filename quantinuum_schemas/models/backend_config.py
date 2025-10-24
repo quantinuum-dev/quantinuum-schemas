@@ -5,7 +5,7 @@ These do not include any parameters that are used to pass access tokens or other
 as our backend credential classes handle those.
 """
 
-# pylint: disable=too-many-lines
+# pylint: disable=too-many-lines,no-member
 import abc
 from typing import Any, Dict, Literal, Optional, Type, TypeVar, Union
 
@@ -18,6 +18,7 @@ from quantinuum_schemas.models.emulator_config import (
     ClassicalReplaySimulator,
     CoinflipSimulator,
     DepolarizingErrorModel,
+    HeliosCustomErrorModel,
     HeliosRuntime,
     MatrixProductStateSimulator,
     NoErrorModel,
@@ -31,6 +32,8 @@ from quantinuum_schemas.models.quantinuum_systems_noise import UserErrorParams
 from .base import BaseModel
 
 ST = TypeVar("ST", bound="BaseModel")
+
+KNOWN_NEXUS_HELIOS_EMULATORS = ["Helios-1E-lite"]
 
 
 class BaseBackendConfig(BaseModel, abc.ABC):
@@ -161,8 +164,8 @@ class BraketConfig(BaseBackendConfig):
         return values
 
 
-class QuantinuumCompilerOptions(BaseModel):
-    """Class for Quantinuum Compiler Options.
+class QuantinuumOptions(BaseModel):
+    """Class for Quantinuum additional options.
 
     Intentionally allows extra unknown flags to be defined.
     """
@@ -173,15 +176,23 @@ class QuantinuumCompilerOptions(BaseModel):
     def check_field_values_are_supported_types(  # pylint: disable=no-self-argument,
         cls, values: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Check that compiler option values are supported types."""
+        """Check that option values are supported types."""
         for key in values:
             assert isinstance(values[key], (str, int, bool, float, list)), (
-                "Compiler options must be str, bool int, float or a list of floats"
+                "Options must be str, bool int, float or a list of floats"
             )
             if isinstance(values[key], list):
                 for x in values[key]:
                     assert isinstance(x, float), "Lists must only contain floats"
         return values
+
+
+# Alias via inheritance for backwards compatibility
+class QuantinuumCompilerOptions(QuantinuumOptions):
+    """Class for Quantinuum compiler options.
+
+    Intentionally allows extra unknown flags to be defined.
+    """
 
 
 class QuantinuumConfig(BaseBackendConfig):
@@ -280,7 +291,7 @@ class BaseEmulatorConfig(BaseModel):
         n_qubits: The maximum number of qubits to simulate.
     """
 
-    n_qubits: int = Field(ge=1)
+    n_qubits: int | None = None
 
     @model_validator(mode="after")
     def prevent_direct_instantiation(self) -> Self:
@@ -338,9 +349,118 @@ class SelenePlusConfig(BaseEmulatorConfig, BaseBackendConfig):
         | ClassicalReplaySimulator
     ) = Field(default_factory=StatevectorSimulator)
     runtime: SimpleRuntime | HeliosRuntime = Field(default_factory=HeliosRuntime)
-    error_model: NoErrorModel | DepolarizingErrorModel | QSystemErrorModel = Field(
-        default_factory=QSystemErrorModel
-    )
+    error_model: (
+        NoErrorModel
+        | DepolarizingErrorModel
+        | QSystemErrorModel
+        | HeliosCustomErrorModel
+    ) = Field(default_factory=QSystemErrorModel)
+
+    @model_validator(mode="after")
+    def validate_runtime_and_error_model(self) -> Self:
+        """Validate that the runtime and error model are compatible."""
+        if isinstance(self.error_model, (QSystemErrorModel, HeliosCustomErrorModel)):
+            if not isinstance(self.runtime, HeliosRuntime):
+                raise ValueError(
+                    f"error_model of type: {self.error_model.__class__.__name__} "
+                    "can only be used with runtime of type: HeliosRuntime"
+                )
+        if isinstance(self.error_model, HeliosCustomErrorModel):
+            if isinstance(self.simulator, StabilizerSimulator):
+                if self.error_model.error_params.coherent_dephasing is False:
+                    raise ValueError(
+                        "HeliosErrorModel with StabilizerSimulator must have "
+                        "coherent_dephasing set to True"
+                    )
+            else:
+                if self.error_model.error_params.coherent_dephasing is True:
+                    raise ValueError(
+                        "HeliosErrorModel with non-StabilizerSimulator must have "
+                        "coherent_dephasing set to False"
+                    )
+
+        return self
+
+
+class HeliosEmulatorConfig(BaseEmulatorConfig):
+    """Configuration for Helios emulator systems."""
+
+    n_qubits: int | None = None
+
+    simulator: (
+        StatevectorSimulator
+        | StabilizerSimulator
+        | MatrixProductStateSimulator
+        | CoinflipSimulator
+        | ClassicalReplaySimulator
+    ) = Field(default_factory=StatevectorSimulator)
+    error_model: (
+        NoErrorModel
+        | DepolarizingErrorModel
+        | QSystemErrorModel
+        | HeliosCustomErrorModel
+    ) = Field(default_factory=QSystemErrorModel)
+    runtime: HeliosRuntime = Field(default_factory=HeliosRuntime)
+
+
+class HeliosConfig(BaseBackendConfig):
+    """Configuration for Helios generation QPUs, emulators and checkers."""
+
+    type: Literal["HeliosConfig"] = "HeliosConfig"
+
+    system_name: str = "Helios-1"
+    emulator_config: HeliosEmulatorConfig | None = None
+
+    max_cost: int | None = None
+
+    attempt_batching: bool = False
+    max_batch_cost: int = 2000
+
+    options: QuantinuumOptions | None = None
+
+    @model_validator(mode="after")
+    def check_valid_config(self) -> Self:
+        """Perform simple configuration validation."""
+
+        if self.max_cost is None:
+            if (
+                not self.system_name.endswith("SC")
+                and self.system_name not in KNOWN_NEXUS_HELIOS_EMULATORS
+            ):
+                raise ValueError(f"max_cost must be set for {self.system_name}.")
+
+        if self.emulator_config is not None:
+            if self.attempt_batching:
+                raise ValueError("Batching not available for emulators.")
+            if self.system_name in KNOWN_NEXUS_HELIOS_EMULATORS:
+                if self.max_cost:
+                    raise ValueError(
+                        f"max_cost not currently supported for {self.system_name}"
+                    )
+            if self.system_name not in KNOWN_NEXUS_HELIOS_EMULATORS:
+                if self.emulator_config.simulator.type == "ClassicalReplaySimulator":
+                    raise ValueError(
+                        f"ClassicalReplaySimulator is only available for "
+                        f"emulators in: {KNOWN_NEXUS_HELIOS_EMULATORS}"
+                    )
+                if self.emulator_config.error_model.type == "DepolarizingErrorModel":
+                    raise ValueError(
+                        f"DepolarizingErrorModel is only available for "
+                        f"emulators in: {KNOWN_NEXUS_HELIOS_EMULATORS}"
+                    )
+                if self.emulator_config.runtime.seed is not None:
+                    raise ValueError(
+                        f"runtime.seed will be ignored for {self.system_name}"
+                    )
+                if self.emulator_config.simulator.seed is not None:
+                    raise ValueError(
+                        f"simulator.seed will be ignored for {self.system_name}"
+                    )
+                if self.emulator_config.error_model.seed is not None:
+                    raise ValueError(
+                        f"error_model.seed will be ignored for {self.system_name}"
+                    )
+        return self
 
 
 BackendConfig = Annotated[
@@ -355,6 +475,7 @@ BackendConfig = Annotated[
         QulacsConfig,
         SeleneConfig,
         SelenePlusConfig,
+        HeliosConfig,
     ],
     Field(discriminator="type"),
 ]

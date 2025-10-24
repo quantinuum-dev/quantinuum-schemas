@@ -11,11 +11,14 @@ from quantinuum_schemas.models.backend_config import (
     QuantinuumConfig,
     QulacsConfig,
     SelenePlusConfig,
+    HeliosConfig,
+    HeliosEmulatorConfig,
 )
 from quantinuum_schemas.models.emulator_config import (
     ClassicalReplaySimulator,
     CoinflipSimulator,
     DepolarizingErrorModel,
+    HeliosCustomErrorModel,
     HeliosRuntime,
     MatrixProductStateSimulator,
     NoErrorModel,
@@ -23,6 +26,10 @@ from quantinuum_schemas.models.emulator_config import (
     SimpleRuntime,
     StabilizerSimulator,
     StatevectorSimulator,
+)
+from quantinuum_schemas.models.quantinuum_systems_noise import (
+    HeliosErrorParams,
+    UserErrorParams,
 )
 
 __all__ = [
@@ -37,6 +44,8 @@ __all__ = [
     "SeleneConfig",
     "SelenePlusConfig",
     "SimpleRuntime",
+    "HeliosConfig",
+    "HeliosEmulatorConfig",
     "HeliosRuntime",
     "NoErrorModel",
     "DepolarizingErrorModel",
@@ -46,4 +55,7 @@ __all__ = [
     "CoinflipSimulator",
     "MatrixProductStateSimulator",
     "ClassicalReplaySimulator",
+    "HeliosCustomErrorModel",
+    "HeliosErrorParams",
+    "UserErrorParams",
 ]
