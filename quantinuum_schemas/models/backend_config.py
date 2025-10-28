@@ -411,7 +411,7 @@ class HeliosConfig(BaseBackendConfig):
     system_name: str = "Helios-1"
     emulator_config: HeliosEmulatorConfig | None = None
 
-    max_cost: int | None = None
+    max_cost: float | None = None
 
     attempt_batching: bool = False
     max_batch_cost: int = 2000
