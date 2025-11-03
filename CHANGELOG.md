@@ -1,9 +1,17 @@
+## 7.3.0 (2025-11-03)
+
+
+### Fixed
+
+- HeliosConfig max_cost and max_batch_cost are now floats.
+
+
 ## 7.2.0 (2025-10-24)
 
 
 ### Added
 
-- Add heliosconfig and pecos noise model (#40).
+- Add HeliosConfig and PECOS noise model (#40).
 
 ## 7.1.0 (2025-10-21)
 
