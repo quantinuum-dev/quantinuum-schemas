@@ -3,7 +3,7 @@
 
 ### Added
 
-- Add heliosconfig and pecos noise model (#40).
+- Add HeliosConfig and PECOS noise model (#40).
 
 ## 7.1.0 (2025-10-21)
 
