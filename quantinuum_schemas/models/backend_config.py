@@ -242,7 +242,7 @@ class QuantinuumConfig(BaseBackendConfig):
     allow_2q_gate_rebase: bool = False
     leakage_detection: bool = False
     simplify_initial: bool = False
-    max_cost: float | None = None
+    max_cost: Optional[int] = None
     error_params: Optional[UserErrorParams] = None
 
 
@@ -414,7 +414,7 @@ class HeliosConfig(BaseBackendConfig):
     max_cost: float | None = None
 
     attempt_batching: bool = False
-    max_batch_cost: int = 2000
+    max_batch_cost: float = 2000.0
 
     options: QuantinuumOptions | None = None
 
