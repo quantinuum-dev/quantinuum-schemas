@@ -8,6 +8,7 @@ as our backend credential classes handle those.
 # pylint: disable=too-many-lines,no-member
 import abc
 from typing import Any, Dict, Literal, Optional, Type, TypeVar, Union
+import warnings
 
 from pydantic import ConfigDict, PositiveInt, field_validator, model_validator
 from pydantic.fields import Field
@@ -244,6 +245,27 @@ class QuantinuumConfig(BaseBackendConfig):
     simplify_initial: bool = False
     max_cost: Optional[int] = None
     error_params: Optional[UserErrorParams] = None
+
+    @model_validator(mode="after")
+    def show_deprecation_warnings(self) -> Self:
+        """Warn about deprecated usage."""
+
+        if self.user_group is not None:
+            warnings.warn(
+                "'QuantinuumConfig.user_group' is deprecated and will be "
+                "removed in a future release. Please specify user_group in the execute job"
+                "submission parameters instead.",
+                DeprecationWarning,
+            )
+
+        if self.device_name.startswith("Helios"):
+            warnings.warn(
+                "QuantinuumConfig is deprecated for submission to Helios systems and support "
+                "will be removed in a future release. Please use HeliosConfig instead.",
+                DeprecationWarning,
+            )
+
+        return self
 
 
 class IBMQConfig(BaseBackendConfig):
