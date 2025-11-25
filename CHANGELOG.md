@@ -1,3 +1,10 @@
+## 7.4.0 (2025-11-25)
+
+
+### Added
+
+- Warn on deprecated quantinuumconfig usage (#46).
+
 ## 7.3.0 (2025-11-03)
 
 
