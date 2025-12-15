@@ -1,3 +1,15 @@
+## 7.4.0 (2025-12-15)
+
+
+### Added
+
+- Warn on deprecated quantinuumconfig usage (#46).
+
+
+### Fixed
+
+- Validating coherent dephasing with stabilizersimulator (#48).
+
 ## 7.3.0 (2025-11-03)
 
 
