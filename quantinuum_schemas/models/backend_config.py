@@ -389,15 +389,9 @@ class SelenePlusConfig(BaseEmulatorConfig, BaseBackendConfig):
                 )
         if isinstance(self.error_model, HeliosCustomErrorModel):
             if isinstance(self.simulator, StabilizerSimulator):
-                if self.error_model.error_params.coherent_dephasing is False:
-                    raise ValueError(
-                        "HeliosErrorModel with StabilizerSimulator must have "
-                        "coherent_dephasing set to True"
-                    )
-            else:
                 if self.error_model.error_params.coherent_dephasing is True:
                     raise ValueError(
-                        "HeliosErrorModel with non-StabilizerSimulator must have "
+                        "HeliosErrorModel with StabilizerSimulator must have "
                         "coherent_dephasing set to False"
                     )
 
