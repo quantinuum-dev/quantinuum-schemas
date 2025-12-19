@@ -8,60 +8,6 @@ from pydantic import AliasChoices, Field, model_validator
 from .base import BaseModel
 
 
-_KEYS_1Q_PAULI = {"X", "Y", "Z"}
-_KEYS_1Q_EMISSION = _KEYS_1Q_PAULI | {"L"}
-_KEYS_2Q_PAULI = {
-    "IX",
-    "IY",
-    "IZ",
-    "XI",
-    "XX",
-    "XY",
-    "XZ",
-    "YI",
-    "YX",
-    "YY",
-    "YZ",
-    "ZI",
-    "ZX",
-    "ZY",
-    "ZZ",
-}
-_KEYS_2Q_EMISSION = _KEYS_2Q_PAULI | {
-    "IL",
-    "XL",
-    "YL",
-    "ZL",
-    "LI",
-    "LX",
-    "LY",
-    "LZ",
-    "LL",
-}
-
-
-def _validate_distribution(
-    name: str, distribution: dict[str, float], keys: set[str]
-) -> None:
-    """
-    Validate that the distribution keys are in the allowed set and that
-    all values are between 0 and 1.
-    """
-    for k, v in distribution.items():
-        assert k in keys, (
-            f"{name} keys must be a subset of {keys}, "
-            f"but an invalid entry was provided with key '{k}'"
-        )
-        assert 0 <= v <= 1, (
-            f"{name} values must be between 0 and 1, but {k}={v} was provided"
-        )
-    if distribution:  # If non-empty
-        sum_values = sum(distribution.values())
-        assert abs(1 - sum_values) < 1e-9, (
-            f"{name} values must sum to 1 +/- 1e-9, but the provided values sum to {sum_values}"
-        )
-
-
 class HeliosErrorParams(BaseModel):
     """
     Error model configuration for emulation of Quantinuum's Helios System.
@@ -74,14 +20,6 @@ class HeliosErrorParams(BaseModel):
         p2: Probability of error after two-qubit gates.
         p1_emission_ratio: Emission ratio for single-qubit gates.
         p2_emission_ratio: The proportion of two-qubit errors that are emission faults.
-        p1_pauli_model: The pauli model for single-qubit gates, e.g.
-          `{"X": 0.1,"Y": 0.2,"Z": 0.3}`.
-        p1_emission_model: The emission model for single-qubit gates, e.g.
-          `{"X": 0.1,"Y": 0.2,"Z": 0.3}`.
-        p2_pauli_model: The pauli model for two-qubit gates, e.g.
-          `{"XX": 0.2, "YZ": 0.3, "ZI": 0.4}`.
-        p2_emission_model: The emission model for two-qubit gates, e.g.
-          `{"XX": 0.2, "YZ": 0.3, "ZI": 0.4}`.
         p_prep_leak_ratio: Preparation leakage ratio.
         p1_seepage_prob: Probability of a leaked qubit being seeped (released from leakage) for
           single-qubit.
@@ -103,7 +41,6 @@ class HeliosErrorParams(BaseModel):
           Alias: p_meas_crosstalk.
         p_crosstalk_init: Probability of crosstalk during initialization operations.
           Alias: p_prep_crosstalk.
-        noiseless_gates: List of gates to be treated as noiseless.
         coherent_dephasing: Whether to include coherent dephasing.
         coherent_to_incoherent_factor: Coherent to incoherent conversion factor.
         leak2depolar: Replace leakage with general noise.
@@ -115,7 +52,6 @@ class HeliosErrorParams(BaseModel):
         quadratic_dephasing_rate: Quadratic rate for idle noise.
           Alias: p_idle_quadratic_rate.
         p2_idle: Stochastic idle noise after each two-qubit gate.
-        p_idle_linear_model: Pauli model for linear idle noise in a comma-delimited format.
     """
 
     p_init: float = Field(
@@ -131,10 +67,6 @@ class HeliosErrorParams(BaseModel):
     p2: float = Field(default=0.0, ge=0.0, le=1.0)
     p1_emission_ratio: float = Field(default=0.0, ge=0.0, le=1.0)
     p2_emission_ratio: float = Field(default=0.0, ge=0.0, le=1.0)
-    p1_pauli_model: dict[str, float] = Field(default_factory=dict)
-    p1_emission_model: dict[str, float] = Field(default_factory=dict)
-    p2_pauli_model: dict[str, float] = Field(default_factory=dict)
-    p2_emission_model: dict[str, float] = Field(default_factory=dict)
     p_prep_leak_ratio: float = Field(default=0.0, ge=0.0, le=1.0)
     p1_seepage_prob: float = Field(default=0.0, ge=0.0, le=1.0)
     p2_seepage_prob: float = Field(default=0.0, ge=0.0, le=1.0)
@@ -169,7 +101,6 @@ class HeliosErrorParams(BaseModel):
         validation_alias=AliasChoices("p_crosstalk_init", "p_prep_crosstalk"),
         serialization_alias="p_prep_crosstalk",
     )
-    noiseless_gates: list[str] = Field(default_factory=list)
     coherent_dephasing: bool = True
     coherent_to_incoherent_factor: float = 1.5
     leak2depolar: bool = False
@@ -191,23 +122,10 @@ class HeliosErrorParams(BaseModel):
         serialization_alias="p_idle_quadratic_rate",
     )
     p2_idle: float = Field(default=0.0, ge=0.0)
-    p_idle_linear_model: dict[str, float] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def check_valid_config(self) -> Self:
         """Validate the error model configuration."""
-        _validate_distribution("p1_pauli_model", self.p1_pauli_model, _KEYS_1Q_PAULI)
-        _validate_distribution(
-            "p1_emission_model", self.p1_emission_model, _KEYS_1Q_EMISSION
-        )
-        _validate_distribution(
-            "p_idle_linear_model", self.p_idle_linear_model, _KEYS_1Q_EMISSION
-        )
-        _validate_distribution("p2_pauli_model", self.p2_pauli_model, _KEYS_2Q_PAULI)
-        _validate_distribution(
-            "p2_emission_model", self.p2_emission_model, _KEYS_2Q_EMISSION
-        )
-
         przz_params = [self.przz_a, self.przz_b, self.przz_c, self.przz_d]
         if not (
             all(x is None for x in przz_params)
