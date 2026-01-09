@@ -1,6 +1,6 @@
 [project]
 name = "quantinuum-schemas"
-version = "7.4.0"
+version = "7.4.1"
 description = "Shared data models for Quantinuum."
 authors = [
     {name = "Matthew Burke", email = "matthew.burke@quantinuum.com"},
