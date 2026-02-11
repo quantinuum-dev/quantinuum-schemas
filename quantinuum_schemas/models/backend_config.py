@@ -222,7 +222,8 @@ class QuantinuumConfig(BaseBackendConfig):
         error_params: Additional error parameters for execution on an emulator.
         user_group: The user group for the compilation jobs.
         max_batch_cost: The maximum HQC cost for a batch of programs (total).
-        max_cost: The maximum HQC cost for a single programs.
+        max_cost: (Deprecated) The maximum HQC cost for a single program. Please
+          specify max_cost in the execute job submission parameters per-job item instead.
     """
 
     type: Literal["QuantinuumConfig"] = "QuantinuumConfig"
@@ -254,6 +255,14 @@ class QuantinuumConfig(BaseBackendConfig):
             warnings.warn(
                 "'QuantinuumConfig.user_group' is deprecated and will be "
                 "removed in a future release. Please specify user_group in the execute job"
+                "submission parameters instead.",
+                DeprecationWarning,
+            )
+
+        if self.max_cost is not None:
+            warnings.warn(
+                "'QuantinuumConfig.max_cost' is deprecated and will be "
+                "removed in a future release. Please specify max_cost in the execute job"
                 "submission parameters instead.",
                 DeprecationWarning,
             )
@@ -310,7 +319,8 @@ class BaseEmulatorConfig(BaseModel):
     """Shared configuration for Selene emulator instances. Not to be used directly.
 
     Args:
-        n_qubits: The maximum number of qubits to simulate.
+        n_qubits: (Deprecated) The maximum number of qubits to simulate.
+          Specify in the job submission parameters per-job item instead.
     """
 
     n_qubits: int | None = None
@@ -324,6 +334,19 @@ class BaseEmulatorConfig(BaseModel):
             )
         return self
 
+    @model_validator(mode="after")
+    def show_deprecation_warnings(self) -> Self:
+        """Warn about deprecated usage."""
+
+        if self.n_qubits is not None:
+            warnings.warn(
+                "'BaseEmulatorConfig.n_qubits' is deprecated and will be "
+                "removed in a future release. Please specify n_qubits in the execute job"
+                "submission parameters per-job item instead.",
+                DeprecationWarning,
+            )
+        return self
+
 
 class SeleneConfig(BaseEmulatorConfig, BaseBackendConfig):
     """Configuration for Quantinuum's Selene.
@@ -333,7 +356,8 @@ class SeleneConfig(BaseEmulatorConfig, BaseBackendConfig):
         runtime: The runtime for the Selene emulator. Runtimes for specific systems
           will model system aspects such as ion transport.
         error_model: The error model for the Selene emulator.
-        n_qubits: The maximum number of qubits to simulate.
+        n_qubits: (Deprecated) The maximum number of qubits to have available for the simulation.
+          Specify in the job submission parameters per-job item instead.
     """
 
     type: Literal["SeleneConfig"] = "SeleneConfig"
@@ -358,7 +382,8 @@ class SelenePlusConfig(BaseEmulatorConfig, BaseBackendConfig):
         runtime: The runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios)
           will model system aspects such as ion transport.
         error_model: The error model for the Selene emulator.
-        n_qubits: The maximum number of qubits to simulate.
+        n_qubits: (Deprecated) The maximum number of qubits to have available for the simulation.
+          Specify in the job submission parameters per-job item instead.
     """
 
     type: Literal["SelenePlusConfig"] = "SelenePlusConfig"
@@ -399,7 +424,15 @@ class SelenePlusConfig(BaseEmulatorConfig, BaseBackendConfig):
 
 
 class HeliosEmulatorConfig(BaseEmulatorConfig):
-    """Configuration for Helios emulator systems."""
+    """Configuration for Helios emulator systems.
+    Args:
+        simulator: The simulator backend to use.
+        runtime: The runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios)
+          will model system aspects such as ion transport.
+        error_model: The error model for the Selene emulator.
+        n_qubits: (Deprecated) The maximum number of qubits to have available for the simulation.
+          Specify in the job submission parameters per-job item instead.
+    """
 
     n_qubits: int | None = None
 
@@ -438,21 +471,17 @@ class HeliosConfig(BaseBackendConfig):
     def check_valid_config(self) -> Self:
         """Perform simple configuration validation."""
 
-        if self.max_cost is None:
-            if (
-                not self.system_name.endswith("SC")
-                and self.system_name not in KNOWN_NEXUS_HELIOS_EMULATORS
-            ):
-                raise ValueError(f"max_cost must be set for {self.system_name}.")
+        if self.max_cost is not None:
+            warnings.warn(
+                "'HeliosConfig.max_cost' is deprecated and will be "
+                "removed in a future release. Please specify max_cost in the execute job"
+                "submission parameters instead.",
+                DeprecationWarning,
+            )
 
         if self.emulator_config is not None:
             if self.attempt_batching:
                 raise ValueError("Batching not available for emulators.")
-            if self.system_name in KNOWN_NEXUS_HELIOS_EMULATORS:
-                if self.max_cost:
-                    raise ValueError(
-                        f"max_cost not currently supported for {self.system_name}"
-                    )
             if self.system_name not in KNOWN_NEXUS_HELIOS_EMULATORS:
                 if self.emulator_config.simulator.type == "ClassicalReplaySimulator":
                     raise ValueError(
