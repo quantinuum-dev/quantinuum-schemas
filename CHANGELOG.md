@@ -1,3 +1,10 @@
+## 7.5.0 (2026-02-11)
+
+
+### Added
+
+- Refactor such that n_qubits and max_cost are at the job item level in submission parameters (#52).
+
 ## 7.4.1 (2026-01-09)
 
 
