@@ -54,74 +54,74 @@ class HeliosErrorParams(BaseModel):
         p2_idle: Stochastic idle noise after each two-qubit gate.
     """
 
-    p_init: float = Field(
-        default=0.0,
+    p_init: float | None = Field(
+        default=None,
         ge=0.0,
         le=1.0,
         validation_alias=AliasChoices("p_init", "p_prep"),
         serialization_alias="p_prep",
     )
-    p_meas_0: float = Field(default=0.0, ge=0.0, le=1.0)
-    p_meas_1: float = Field(default=0.0, ge=0.0, le=1.0)
-    p1: float = Field(default=0.0, ge=0.0, le=1.0)
-    p2: float = Field(default=0.0, ge=0.0, le=1.0)
-    p1_emission_ratio: float = Field(default=0.0, ge=0.0, le=1.0)
-    p2_emission_ratio: float = Field(default=0.0, ge=0.0, le=1.0)
-    p_prep_leak_ratio: float = Field(default=0.0, ge=0.0, le=1.0)
-    p1_seepage_prob: float = Field(default=0.0, ge=0.0, le=1.0)
-    p2_seepage_prob: float = Field(default=0.0, ge=0.0, le=1.0)
-    scale: float = Field(default=1.0, ge=0.0)
-    memory_scale: float = Field(default=1.0, ge=0.0)
-    init_scale: float = Field(
-        default=1.0,
+    p_meas_0: float | None = Field(default=None, ge=0.0, le=1.0)
+    p_meas_1: float | None = Field(default=None, ge=0.0, le=1.0)
+    p1: float | None = Field(default=None, ge=0.0, le=1.0)
+    p2: float | None = Field(default=None, ge=0.0, le=1.0)
+    p1_emission_ratio: float | None = Field(default=None, ge=0.0, le=1.0)
+    p2_emission_ratio: float | None = Field(default=None, ge=0.0, le=1.0)
+    p_prep_leak_ratio: float | None = Field(default=None, ge=0.0, le=1.0)
+    p1_seepage_prob: float | None = Field(default=None, ge=0.0, le=1.0)
+    p2_seepage_prob: float | None = Field(default=None, ge=0.0, le=1.0)
+    scale: float | None = Field(default=None, ge=0.0)
+    memory_scale: float | None = Field(default=None, ge=0.0)
+    init_scale: float | None = Field(
+        default=None,
         ge=0.0,
         validation_alias=AliasChoices("init_scale", "prep_scale"),
         serialization_alias="prep_scale",
     )
-    meas_scale: float = Field(default=1.0, ge=0.0)
-    p1_scale: float = Field(default=1.0, ge=0.0)
-    p2_scale: float = Field(default=1.0, ge=0.0)
-    emission_scale: float = Field(default=1.0, ge=0.0)
+    meas_scale: float | None = Field(default=None, ge=0.0)
+    p1_scale: float | None = Field(default=None, ge=0.0)
+    p2_scale: float | None = Field(default=None, ge=0.0)
+    emission_scale: float | None = Field(default=None, ge=0.0)
     przz_a: float | None = None
     przz_b: float | None = None
     przz_c: float | None = None
     przz_d: float | None = None
-    przz_power: float = 1.0
-    p_crosstalk_meas: float = Field(
-        default=0.0,
+    przz_power: float | None = None
+    p_crosstalk_meas: float | None = Field(
+        default=None,
         ge=0.0,
         le=1.0,
         validation_alias=AliasChoices("p_crosstalk_meas", "p_meas_crosstalk"),
         serialization_alias="p_meas_crosstalk",
     )
-    p_crosstalk_init: float = Field(
-        default=0.0,
+    p_crosstalk_init: float | None = Field(
+        default=None,
         ge=0.0,
         le=1.0,
         validation_alias=AliasChoices("p_crosstalk_init", "p_prep_crosstalk"),
         serialization_alias="p_prep_crosstalk",
     )
-    coherent_dephasing: bool = True
-    coherent_to_incoherent_factor: float = 1.5
-    leak2depolar: bool = False
-    p_meas_crosstalk_scale: float = 1.0
-    p_prep_crosstalk_scale: float = 1.0
-    crosstalk_per_gate: bool | None = None
-    linear_dephasing_rate: float = Field(
-        default=0.0,
+    coherent_dephasing: bool | None = None
+    coherent_to_incoherent_factor: float | None = None
+    leak2depolar: bool | None = False
+    p_meas_crosstalk_scale: float | None = None
+    p_prep_crosstalk_scale: float | None = None
+    crosstalk_per_gate: bool | None | None = None
+    linear_dephasing_rate: float | None = Field(
+        default=None,
         ge=0.0,
         validation_alias=AliasChoices("linear_dephasing_rate", "p_idle_linear_rate"),
         serialization_alias="p_idle_linear_rate",
     )
-    quadratic_dephasing_rate: float = Field(
-        default=0.0,
+    quadratic_dephasing_rate: float | None = Field(
+        default=None,
         ge=0.0,
         validation_alias=AliasChoices(
             "quadratic_dephasing_rate", "p_idle_quadratic_rate"
         ),
         serialization_alias="p_idle_quadratic_rate",
     )
-    p2_idle: float = Field(default=0.0, ge=0.0)
+    p2_idle: float | None = Field(default=None, ge=0.0)
 
     @model_validator(mode="after")
     def check_valid_config(self) -> Self:
