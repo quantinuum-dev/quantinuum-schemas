@@ -367,7 +367,7 @@ class SeleneConfig(BaseEmulatorConfig, BaseBackendConfig):
         | StabilizerSimulator
         | CoinflipSimulator
         | ClassicalReplaySimulator
-    ) = Field(default_factory=StatevectorSimulator)
+    )
     runtime: SimpleRuntime = Field(default_factory=SimpleRuntime)
     error_model: NoErrorModel | DepolarizingErrorModel = Field(
         default_factory=NoErrorModel
@@ -394,7 +394,7 @@ class SelenePlusConfig(BaseEmulatorConfig, BaseBackendConfig):
         | MatrixProductStateSimulator
         | CoinflipSimulator
         | ClassicalReplaySimulator
-    ) = Field(default_factory=StatevectorSimulator)
+    )
     runtime: SimpleRuntime | HeliosRuntime = Field(default_factory=HeliosRuntime)
     error_model: (
         NoErrorModel
@@ -442,7 +442,7 @@ class HeliosEmulatorConfig(BaseEmulatorConfig):
         | MatrixProductStateSimulator
         | CoinflipSimulator
         | ClassicalReplaySimulator
-    ) = Field(default_factory=StatevectorSimulator)
+    )
     error_model: (
         NoErrorModel
         | DepolarizingErrorModel
