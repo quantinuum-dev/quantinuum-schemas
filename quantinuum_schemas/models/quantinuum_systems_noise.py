@@ -103,7 +103,7 @@ class HeliosErrorParams(BaseModel):
     )
     coherent_dephasing: bool | None = None
     coherent_to_incoherent_factor: float | None = None
-    leak2depolar: bool | None = False
+    leak2depolar: bool | None = None
     p_meas_crosstalk_scale: float | None = None
     p_prep_crosstalk_scale: float | None = None
     crosstalk_per_gate: bool | None | None = None
