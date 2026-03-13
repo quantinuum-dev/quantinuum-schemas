@@ -1,3 +1,11 @@
+## 7.6.0 (2026-03-13)
+
+
+### Added
+
+- Helioserrorparams unset values default to none (#55).
+
+
 ## 7.5.0 (2026-02-11)
 
 
