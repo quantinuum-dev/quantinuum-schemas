@@ -216,7 +216,7 @@ class Batchable(Protocol):
 BatchableT = TypeVar("BatchableT", bound=Batchable)
 
 
-class BatchIdValidationMixin:
+class BatchingValidationMixin:
     @model_validator(mode="after")
     def check_batch_id_requires_attempt_batching(self: BatchableT) -> BatchableT:
         """Fails if batch_id is set and attempt_batching is False."""
@@ -239,7 +239,7 @@ class BatchIdValidationMixin:
         return self
 
 
-class QuantinuumConfig(BaseBackendConfig, BatchIdValidationMixin):
+class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
     """Runs circuits on Quantinuum's quantum devices and simulators.
 
     Args:
@@ -507,7 +507,7 @@ class HeliosEmulatorConfig(BaseEmulatorConfig):
     runtime: HeliosRuntime = Field(default_factory=HeliosRuntime)
 
 
-class HeliosConfig(BaseBackendConfig, BatchIdValidationMixin):
+class HeliosConfig(BaseBackendConfig, BatchingValidationMixin):
     """Configuration for Helios generation QPUs, emulators and checkers."""
 
     type: Literal["HeliosConfig"] = "HeliosConfig"
