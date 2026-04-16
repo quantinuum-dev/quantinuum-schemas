@@ -233,7 +233,7 @@ class QuantinuumConfig(BaseBackendConfig):
     simulator: str = "state-vector"
     machine_debug: bool = False
     attempt_batching: bool = False
-    batch_id: Optional[str] = None
+    batch_id: Optional[UUID] = None
     # Parameters below are passed into QuantinuumBackend.compilation_config in their own class.
     allow_implicit_swaps: bool = True
     # Parameters below are kwargs used in QuantinuumBackend.process_circuits().
@@ -308,13 +308,6 @@ class QuantinuumConfig(BaseBackendConfig):
                 "Your job will be submitted as a non-batch job.",
                 RuntimeWarning,
             )
-        return self
-
-    @model_validator(mode="after")
-    def check_batch_id_is_uuid(self) -> Self:
-        """Checks that batch-id, if set, is a valid UUID."""
-        if self.batch_id is not None:
-            UUID(self.batch_id)
         return self
 
 
@@ -504,7 +497,7 @@ class HeliosConfig(BaseBackendConfig):
     max_cost: float | None = None
 
     attempt_batching: bool = False
-    batch_id: Optional[str] = None
+    batch_id: Optional[UUID] = None
     max_batch_cost: float = 2000.0
 
     options: QuantinuumOptions | None = None
@@ -574,13 +567,6 @@ class HeliosConfig(BaseBackendConfig):
                 "Your job will be submitted as a non-batch job.",
                 RuntimeWarning,
             )
-        return self
-
-    @model_validator(mode="after")
-    def check_batch_id_is_uuid(self) -> Self:
-        """Checks that batch-id, if set, is a valid UUID."""
-        if self.batch_id is not None:
-            UUID(self.batch_id)
         return self
 
 

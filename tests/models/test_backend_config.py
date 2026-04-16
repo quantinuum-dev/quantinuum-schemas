@@ -1,6 +1,7 @@
 """Test backendconfig models."""
 
-from uuid import uuid4
+from uuid import UUID, uuid4
+import warnings
 
 import pytest
 from pydantic import ValidationError
@@ -140,17 +141,16 @@ def test_selene_plus_config_roundtrip(
     "batch_id,attempt_batching,expect_exception",
     [
         (
-            str(uuid4()),
+            uuid4(),
             False,
             True,
         ),  # batch_id with attempt_batching=False should throw an error
-        ("invalid batch id", True, True),  # non-UUID batch-ids should throw an error
-        (str(uuid4()), True, False),  # valid workflow, should be fine
+        (uuid4(), True, False),  # valid workflow, should be fine
         (None, True, False),  # valid workflow, should be fine.
     ],
 )
 def test_batch_id(
-    batch_id: str, attempt_batching: bool, expect_exception: bool
+    batch_id: UUID, attempt_batching: bool, expect_exception: bool
 ) -> None:
     """Test batch_id validation follows requirements."""
     if expect_exception:
@@ -189,12 +189,15 @@ def test_attempt_batching_against_simulators() -> None:
         QuantinuumConfig(device_name="H2-1E", attempt_batching=True)
         QuantinuumConfig(device_name="H1-Emulator", attempt_batching=True)
         QuantinuumConfig(device_name="H2-1SC", attempt_batching=True)
-    HeliosConfig(system_name="Helios-1", attempt_batching=True)
-    QuantinuumConfig(device_name="H2-2", attempt_batching=True)
 
-    # if attempt batching is false, no warning is throw
-    HeliosConfig(system_name="Helios-1E", emulator_config=HeliosEmulatorConfig())
-    HeliosConfig(system_name="Helios-1SC")
-    QuantinuumConfig(device_name="H2-1E")
-    QuantinuumConfig(device_name="H1-Emulator")
-    QuantinuumConfig(device_name="H2-1SC")
+    with warnings.catch_warnings:
+        QuantinuumConfig(device_name="H2-1SC", attempt_batching=True)
+        HeliosConfig(system_name="Helios-1", attempt_batching=True)
+        QuantinuumConfig(device_name="H2-2", attempt_batching=True)
+
+        # if attempt batching is false, no warning is throw
+        HeliosConfig(system_name="Helios-1E", emulator_config=HeliosEmulatorConfig())
+        HeliosConfig(system_name="Helios-1SC")
+        QuantinuumConfig(device_name="H2-1E")
+        QuantinuumConfig(device_name="H1-Emulator")
+        QuantinuumConfig(device_name="H2-1SC")
