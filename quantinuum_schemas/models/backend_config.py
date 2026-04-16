@@ -282,6 +282,24 @@ class QuantinuumConfig(BaseBackendConfig):
         if self.batch_id is not None and not self.attempt_batching:
             raise ValueError("batch id can only be set if attempt_batching is set to True.")
         return self
+    
+    @model_validator(mode="after")
+    def warn_if_backend_doesnt_support_batching(self) -> Self:
+        def is_hardware_device(config: QuantinuumConfig) -> bool:
+            if config.device_name.endswith("SC"):
+                return False
+            if config.device_name.endswith("Emulator"):
+                return False
+            if config.device_name.endswith("E"):
+                return False
+            return True
+
+        if self.attempt_batching and not is_hardware_device(self):
+            warnings.warn(
+                "'QuantinuumConfig.attempt_batching' is only supported for hardware backends."
+                "Your job will be submitted as a non-batch job.",
+                RuntimeWarning
+            )
 
 
 class IBMQConfig(BaseBackendConfig):
@@ -488,8 +506,6 @@ class HeliosConfig(BaseBackendConfig):
             )
 
         if self.emulator_config is not None:
-            if self.attempt_batching:
-                raise ValueError("Batching not available for emulators.")
             if self.system_name not in KNOWN_NEXUS_HELIOS_EMULATORS:
                 if self.emulator_config.simulator.type == "ClassicalReplaySimulator":
                     raise ValueError(
@@ -519,6 +535,22 @@ class HeliosConfig(BaseBackendConfig):
         if self.batch_id is not None and not self.attempt_batching:
             raise ValueError("batch id can only be set if attempt_batching is set to True.")
         return self
+    
+    @model_validator(mode="after")
+    def warn_if_backend_doesnt_support_batching(self) -> Self:
+        def is_hardware_device(config: HeliosConfig) -> bool:
+            if config.device_name.endswith("SC"):
+                return False
+            if config.emulator_config is not None:
+                return False
+            return True
+
+        if self.attempt_batching and not is_hardware_device(self):
+            warnings.warn(
+                "'QuantinuumConfig.attempt_batching' is only supported for hardware backends."
+                "Your job will be submitted as a non-batch job.",
+                RuntimeWarning
+            )
 
 
 BackendConfig = Annotated[
