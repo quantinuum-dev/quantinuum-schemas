@@ -232,7 +232,7 @@ class BatchIdValidationMixin:
 
         if self.attempt_batching and not self.targets_hardware_device():
             warnings.warn(
-                f"'{self.__class__.__name__}.attempt_batching' is only supported for hardware backends."
+                "Batching is not supported by this backend. "
                 "Your job will be submitted as a non-batch job.",
                 RuntimeWarning,
             )
