@@ -190,11 +190,10 @@ def test_attempt_batching_against_simulators() -> None:
         QuantinuumConfig(device_name="H1-Emulator", attempt_batching=True)
         QuantinuumConfig(device_name="H2-1SC", attempt_batching=True)
 
-    with warnings.catch_warnings:
-        QuantinuumConfig(device_name="H2-1SC", attempt_batching=True)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         HeliosConfig(system_name="Helios-1", attempt_batching=True)
         QuantinuumConfig(device_name="H2-2", attempt_batching=True)
-
         # if attempt batching is false, no warning is throw
         HeliosConfig(system_name="Helios-1E", emulator_config=HeliosEmulatorConfig())
         HeliosConfig(system_name="Helios-1SC")
