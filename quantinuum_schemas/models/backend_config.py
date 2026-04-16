@@ -204,6 +204,7 @@ class QuantinuumConfig(BaseBackendConfig):
         simulator: If device_name is a simulator, the type of simulator to use.
         machine_debug: Whether to run in machine debug mode.
         attempt_batching: Whether to attempt batching of circuits.
+        batch_id: Optional id for batching jobs. Can only be set if attempt_batching=True.
         allow_implicit_swaps: Whether to allow implicit swaps in the compilation process.
         postprocess:
           Apply end-of-circuit simplifications and classical postprocessing
@@ -231,6 +232,7 @@ class QuantinuumConfig(BaseBackendConfig):
     simulator: str = "state-vector"
     machine_debug: bool = False
     attempt_batching: bool = False
+    batch_id: Optional[str] = None 
     # Parameters below are passed into QuantinuumBackend.compilation_config in their own class.
     allow_implicit_swaps: bool = True
     # Parameters below are kwargs used in QuantinuumBackend.process_circuits().
@@ -463,6 +465,7 @@ class HeliosConfig(BaseBackendConfig):
     max_cost: float | None = None
 
     attempt_batching: bool = False
+    batch_id: Optional[str] = None
     max_batch_cost: float = 2000.0
 
     options: QuantinuumOptions | None = None
