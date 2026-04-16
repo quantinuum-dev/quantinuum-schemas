@@ -1,10 +1,15 @@
 """Test backendconfig models."""
 
+from uuid import uuid4
+
 import pytest
 from pydantic import ValidationError
 
 from quantinuum_schemas.models.backend_config import (
     AerConfig,
+    HeliosConfig,
+    HeliosEmulatorConfig,
+    QuantinuumConfig,
     SeleneConfig,
     QuantinuumCompilerOptions,
     SelenePlusConfig,
@@ -129,3 +134,67 @@ def test_selene_plus_config_roundtrip(
     assert config == reloaded_config
     assert config.runtime == reloaded_config.runtime
     assert config.error_model == reloaded_config.error_model
+
+
+@pytest.mark.parametrize(
+    "batch_id,attempt_batching,expect_exception",
+    [
+        (
+            str(uuid4()),
+            False,
+            True,
+        ),  # batch_id with attempt_batching=False should throw an error
+        ("invalid batch id", True, True),  # non-UUID batch-ids should throw an error
+        (str(uuid4()), True, False),  # valid workflow, should be fine
+        (None, True, False),  # valid workflow, should be fine.
+    ],
+)
+def test_batch_id(
+    batch_id: str, attempt_batching: bool, expect_exception: bool
+) -> None:
+    """Test batch_id validation follows requirements."""
+    if expect_exception:
+        with pytest.raises(ValidationError):
+            QuantinuumConfig(
+                device_name="H2-2",
+                batch_id=batch_id,
+                attempt_batching=attempt_batching,
+            )
+        with pytest.raises(ValidationError):
+            HeliosConfig(
+                system_name="Helios-1",
+                batch_id=batch_id,
+                attempt_batching=attempt_batching,
+            )
+    else:
+        QuantinuumConfig(
+            device_name="H2-2",
+            batch_id=batch_id,
+            attempt_batching=attempt_batching,
+        )
+        HeliosConfig(
+            system_name="Helios-1", batch_id=batch_id, attempt_batching=attempt_batching
+        )
+
+
+def test_attempt_batching_against_simulators() -> None:
+    """Test warning if attempt_batching is True and the backend doesn't support batching."""
+    with pytest.warns(RuntimeWarning):
+        HeliosConfig(
+            system_name="Helios-1E",
+            emulator_config=HeliosEmulatorConfig(),
+            attempt_batching=True,
+        )
+        HeliosConfig(system_name="Helios-1SC", attempt_batching=True)
+        QuantinuumConfig(device_name="H2-1E", attempt_batching=True)
+        QuantinuumConfig(device_name="H1-Emulator", attempt_batching=True)
+        QuantinuumConfig(device_name="H2-1SC", attempt_batching=True)
+    HeliosConfig(system_name="Helios-1", attempt_batching=True)
+    QuantinuumConfig(device_name="H2-2", attempt_batching=True)
+
+    # if attempt batching is false, no warning is throw
+    HeliosConfig(system_name="Helios-1E", emulator_config=HeliosEmulatorConfig())
+    HeliosConfig(system_name="Helios-1SC")
+    QuantinuumConfig(device_name="H2-1E")
+    QuantinuumConfig(device_name="H1-Emulator")
+    QuantinuumConfig(device_name="H2-1SC")

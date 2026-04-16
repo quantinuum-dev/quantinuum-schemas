@@ -233,7 +233,7 @@ class QuantinuumConfig(BaseBackendConfig):
     simulator: str = "state-vector"
     machine_debug: bool = False
     attempt_batching: bool = False
-    batch_id: Optional[str] = None 
+    batch_id: Optional[str] = None
     # Parameters below are passed into QuantinuumBackend.compilation_config in their own class.
     allow_implicit_swaps: bool = True
     # Parameters below are kwargs used in QuantinuumBackend.process_circuits().
@@ -278,15 +278,22 @@ class QuantinuumConfig(BaseBackendConfig):
             )
 
         return self
+
     @model_validator(mode="after")
     def check_batch_id_requires_attempt_batching(self) -> Self:
+        """Fails if batch_id is set and attempt_batching is False."""
         if self.batch_id is not None and not self.attempt_batching:
-            raise ValueError("batch id can only be set if attempt_batching is set to True.")
+            raise ValueError(
+                "batch id can only be set if attempt_batching is set to True."
+            )
         return self
-    
+
     @model_validator(mode="after")
     def warn_if_backend_doesnt_support_batching(self) -> Self:
+        """Warns if attempt_batching is true for a backend that doesn't support batching"""
+
         def is_hardware_device(config: QuantinuumConfig) -> bool:
+            """Helper function to identify hardware backends."""
             if config.device_name.endswith("SC"):
                 return False
             if config.device_name.endswith("Emulator"):
@@ -299,14 +306,16 @@ class QuantinuumConfig(BaseBackendConfig):
             warnings.warn(
                 "'QuantinuumConfig.attempt_batching' is only supported for hardware backends."
                 "Your job will be submitted as a non-batch job.",
-                RuntimeWarning
+                RuntimeWarning,
             )
         return self
-    
-    @field_validator("batch_id")
-    def check_batch_id_is_uuid(cls, value: Any) -> str:
-        return UUID(value)
 
+    @model_validator(mode="after")
+    def check_batch_id_is_uuid(self) -> Self:
+        """Checks that batch-id, if set, is a valid UUID."""
+        if self.batch_id is not None:
+            UUID(self.batch_id)
+        return self
 
 
 class IBMQConfig(BaseBackendConfig):
@@ -537,16 +546,23 @@ class HeliosConfig(BaseBackendConfig):
                         f"error_model.seed will be ignored for {self.system_name}"
                     )
         return self
+
     @model_validator(mode="after")
     def check_batch_id_requires_attempt_batching(self) -> Self:
+        """Fails if batch_id is set and attempt_batching is False."""
         if self.batch_id is not None and not self.attempt_batching:
-            raise ValueError("batch id can only be set if attempt_batching is set to True.")
+            raise ValueError(
+                "batch id can only be set if attempt_batching is set to True."
+            )
         return self
-    
+
     @model_validator(mode="after")
     def warn_if_backend_doesnt_support_batching(self) -> Self:
+        """Warns if attempt_batching is true for a backend that doesn't support batching"""
+
         def is_hardware_device(config: HeliosConfig) -> bool:
-            if config.device_name.endswith("SC"):
+            """Helper function to identify hardware backends."""
+            if config.system_name.endswith("SC"):
                 return False
             if config.emulator_config is not None:
                 return False
@@ -556,11 +572,16 @@ class HeliosConfig(BaseBackendConfig):
             warnings.warn(
                 "'QuantinuumConfig.attempt_batching' is only supported for hardware backends."
                 "Your job will be submitted as a non-batch job.",
-                RuntimeWarning
+                RuntimeWarning,
             )
-    @field_validator("batch_id")
-    def check_batch_id_is_uuid(cls, value: Any) -> str:
-        return UUID(value)
+        return self
+
+    @model_validator(mode="after")
+    def check_batch_id_is_uuid(self) -> Self:
+        """Checks that batch-id, if set, is a valid UUID."""
+        if self.batch_id is not None:
+            UUID(self.batch_id)
+        return self
 
 
 BackendConfig = Annotated[
