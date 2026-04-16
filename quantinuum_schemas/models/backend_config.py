@@ -277,6 +277,11 @@ class QuantinuumConfig(BaseBackendConfig):
             )
 
         return self
+    @model_validator(mode="after")
+    def check_batch_id_requires_attempt_batching(self) -> Self:
+        if self.batch_id is not None and not self.attempt_batching:
+            raise ValueError("batch id can only be set if attempt_batching is set to True.")
+        return self
 
 
 class IBMQConfig(BaseBackendConfig):
@@ -508,6 +513,11 @@ class HeliosConfig(BaseBackendConfig):
                     raise ValueError(
                         f"error_model.seed will be ignored for {self.system_name}"
                     )
+        return self
+    @model_validator(mode="after")
+    def check_batch_id_requires_attempt_batching(self) -> Self:
+        if self.batch_id is not None and not self.attempt_batching:
+            raise ValueError("batch id can only be set if attempt_batching is set to True.")
         return self
 
 
