@@ -8,6 +8,7 @@ as our backend credential classes handle those.
 # pylint: disable=too-many-lines,no-member
 import abc
 from typing import Any, Dict, Literal, Optional, Type, TypeVar, Union
+from uuid import UUID
 import warnings
 
 from pydantic import ConfigDict, PositiveInt, field_validator, model_validator
@@ -300,6 +301,12 @@ class QuantinuumConfig(BaseBackendConfig):
                 "Your job will be submitted as a non-batch job.",
                 RuntimeWarning
             )
+        return self
+    
+    @field_validator("batch_id")
+    def check_batch_id_is_uuid(cls, value: Any) -> str:
+        return UUID(value)
+
 
 
 class IBMQConfig(BaseBackendConfig):
@@ -551,6 +558,9 @@ class HeliosConfig(BaseBackendConfig):
                 "Your job will be submitted as a non-batch job.",
                 RuntimeWarning
             )
+    @field_validator("batch_id")
+    def check_batch_id_is_uuid(cls, value: Any) -> str:
+        return UUID(value)
 
 
 BackendConfig = Annotated[
