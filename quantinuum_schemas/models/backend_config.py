@@ -563,7 +563,7 @@ class HeliosConfig(BaseBackendConfig):
 
         if self.attempt_batching and not is_hardware_device(self):
             warnings.warn(
-                "'QuantinuumConfig.attempt_batching' is only supported for hardware backends."
+                "'HeliosConfig.attempt_batching' is only supported for hardware backends."
                 "Your job will be submitted as a non-batch job.",
                 RuntimeWarning,
             )
