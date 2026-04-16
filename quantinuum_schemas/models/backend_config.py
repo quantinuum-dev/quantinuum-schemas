@@ -7,7 +7,7 @@ as our backend credential classes handle those.
 
 # pylint: disable=too-many-lines,no-member
 import abc
-from typing import Any, Dict, Literal, Optional, Type, TypeVar, Union
+from typing import Any, Dict, Literal, Optional, Protocol, Type, TypeVar, Union
 from uuid import UUID
 import warnings
 
@@ -197,7 +197,26 @@ class QuantinuumCompilerOptions(QuantinuumOptions):
     """
 
 
-class QuantinuumConfig(BaseBackendConfig):
+class Batchable(Protocol):
+    batch_id: UUID | None
+    attempt_batching: bool
+
+
+BatchableT = TypeVar("BatchableT", bound=Batchable)
+
+
+class BatchIdValidationMixin:
+    @model_validator(mode="after")
+    def check_batch_id_requires_attempt_batching(self: BatchableT) -> BatchableT:
+        """Fails if batch_id is set and attempt_batching is False."""
+        if self.batch_id is not None and not self.attempt_batching:
+            raise ValueError(
+                "batch id can only be set if attempt_batching is set to True."
+            )
+        return self
+
+
+class QuantinuumConfig(BaseBackendConfig, BatchIdValidationMixin):
     """Runs circuits on Quantinuum's quantum devices and simulators.
 
     Args:
@@ -277,15 +296,6 @@ class QuantinuumConfig(BaseBackendConfig):
                 DeprecationWarning,
             )
 
-        return self
-
-    @model_validator(mode="after")
-    def check_batch_id_requires_attempt_batching(self) -> Self:
-        """Fails if batch_id is set and attempt_batching is False."""
-        if self.batch_id is not None and not self.attempt_batching:
-            raise ValueError(
-                "batch id can only be set if attempt_batching is set to True."
-            )
         return self
 
     @model_validator(mode="after")
@@ -486,7 +496,7 @@ class HeliosEmulatorConfig(BaseEmulatorConfig):
     runtime: HeliosRuntime = Field(default_factory=HeliosRuntime)
 
 
-class HeliosConfig(BaseBackendConfig):
+class HeliosConfig(BaseBackendConfig, BatchIdValidationMixin):
     """Configuration for Helios generation QPUs, emulators and checkers."""
 
     type: Literal["HeliosConfig"] = "HeliosConfig"
@@ -538,15 +548,6 @@ class HeliosConfig(BaseBackendConfig):
                     raise ValueError(
                         f"error_model.seed will be ignored for {self.system_name}"
                     )
-        return self
-
-    @model_validator(mode="after")
-    def check_batch_id_requires_attempt_batching(self) -> Self:
-        """Fails if batch_id is set and attempt_batching is False."""
-        if self.batch_id is not None and not self.attempt_batching:
-            raise ValueError(
-                "batch id can only be set if attempt_batching is set to True."
-            )
         return self
 
     @model_validator(mode="after")
