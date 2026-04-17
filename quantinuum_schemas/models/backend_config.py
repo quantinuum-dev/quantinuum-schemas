@@ -208,6 +208,8 @@ class QuantinuumCompilerOptions(QuantinuumOptions):
 
 
 class Batchable(Protocol):
+    """Helper class for checking batch params."""
+
     batch_id: UUID | None
     attempt_batching: bool
     targets_hardware_device: Callable[..., bool]
@@ -217,6 +219,8 @@ BatchableT = TypeVar("BatchableT", bound=Batchable)
 
 
 class BatchingValidationMixin:
+    """Mixin for batching model validators."""
+
     @model_validator(mode="after")
     def check_batch_id_requires_attempt_batching(self: BatchableT) -> BatchableT:
         """Fails if batch_id is set and attempt_batching is False."""
