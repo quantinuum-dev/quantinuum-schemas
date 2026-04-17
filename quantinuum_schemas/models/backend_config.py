@@ -7,7 +7,17 @@ as our backend credential classes handle those.
 
 # pylint: disable=too-many-lines,no-member
 import abc
-from typing import Any, Dict, Literal, Optional, Type, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Literal,
+    Optional,
+    Protocol,
+    Type,
+    TypeVar,
+    Union,
+)
 from uuid import UUID
 import warnings
 
@@ -197,7 +207,39 @@ class QuantinuumCompilerOptions(QuantinuumOptions):
     """
 
 
-class QuantinuumConfig(BaseBackendConfig):
+class Batchable(Protocol):
+    batch_id: UUID | None
+    attempt_batching: bool
+    targets_hardware_device: Callable[..., bool]
+
+
+BatchableT = TypeVar("BatchableT", bound=Batchable)
+
+
+class BatchingValidationMixin:
+    @model_validator(mode="after")
+    def check_batch_id_requires_attempt_batching(self: BatchableT) -> BatchableT:
+        """Fails if batch_id is set and attempt_batching is False."""
+        if self.batch_id is not None and not self.attempt_batching:
+            raise ValueError(
+                "batch id can only be set if attempt_batching is set to True."
+            )
+        return self
+
+    @model_validator(mode="after")
+    def warn_if_backend_doesnt_support_batching(self: BatchableT) -> BatchableT:
+        """Warns if attempt_batching is true for a backend that doesn't support batching"""
+
+        if self.attempt_batching and not self.targets_hardware_device():
+            warnings.warn(
+                "Batching is not supported by this backend. "
+                "Your job will be submitted as a non-batch job.",
+                RuntimeWarning,
+            )
+        return self
+
+
+class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
     """Runs circuits on Quantinuum's quantum devices and simulators.
 
     Args:
@@ -279,36 +321,15 @@ class QuantinuumConfig(BaseBackendConfig):
 
         return self
 
-    @model_validator(mode="after")
-    def check_batch_id_requires_attempt_batching(self) -> Self:
-        """Fails if batch_id is set and attempt_batching is False."""
-        if self.batch_id is not None and not self.attempt_batching:
-            raise ValueError(
-                "batch id can only be set if attempt_batching is set to True."
-            )
-        return self
-
-    @model_validator(mode="after")
-    def warn_if_backend_doesnt_support_batching(self) -> Self:
-        """Warns if attempt_batching is true for a backend that doesn't support batching"""
-
-        def is_hardware_device(config: QuantinuumConfig) -> bool:
-            """Helper function to identify hardware backends."""
-            if config.device_name.endswith("SC"):
-                return False
-            if config.device_name.endswith("Emulator"):
-                return False
-            if config.device_name.endswith("E"):
-                return False
-            return True
-
-        if self.attempt_batching and not is_hardware_device(self):
-            warnings.warn(
-                "'QuantinuumConfig.attempt_batching' is only supported for hardware backends."
-                "Your job will be submitted as a non-batch job.",
-                RuntimeWarning,
-            )
-        return self
+    def targets_hardware_device(self) -> bool:
+        """Helper function to identify hardware backends."""
+        if self.device_name.endswith("SC"):
+            return False
+        if self.device_name.endswith("Emulator"):
+            return False
+        if self.device_name.endswith("E"):
+            return False
+        return True
 
 
 class IBMQConfig(BaseBackendConfig):
@@ -486,7 +507,7 @@ class HeliosEmulatorConfig(BaseEmulatorConfig):
     runtime: HeliosRuntime = Field(default_factory=HeliosRuntime)
 
 
-class HeliosConfig(BaseBackendConfig):
+class HeliosConfig(BaseBackendConfig, BatchingValidationMixin):
     """Configuration for Helios generation QPUs, emulators and checkers."""
 
     type: Literal["HeliosConfig"] = "HeliosConfig"
@@ -540,34 +561,13 @@ class HeliosConfig(BaseBackendConfig):
                     )
         return self
 
-    @model_validator(mode="after")
-    def check_batch_id_requires_attempt_batching(self) -> Self:
-        """Fails if batch_id is set and attempt_batching is False."""
-        if self.batch_id is not None and not self.attempt_batching:
-            raise ValueError(
-                "batch id can only be set if attempt_batching is set to True."
-            )
-        return self
-
-    @model_validator(mode="after")
-    def warn_if_backend_doesnt_support_batching(self) -> Self:
-        """Warns if attempt_batching is true for a backend that doesn't support batching"""
-
-        def is_hardware_device(config: HeliosConfig) -> bool:
-            """Helper function to identify hardware backends."""
-            if config.system_name.endswith("SC"):
-                return False
-            if config.emulator_config is not None:
-                return False
-            return True
-
-        if self.attempt_batching and not is_hardware_device(self):
-            warnings.warn(
-                "'HeliosConfig.attempt_batching' is only supported for hardware backends."
-                "Your job will be submitted as a non-batch job.",
-                RuntimeWarning,
-            )
-        return self
+    def targets_hardware_device(self) -> bool:
+        """Helper function to identify hardware backends."""
+        if self.system_name.endswith("SC"):
+            return False
+        if self.emulator_config is not None:
+            return False
+        return True
 
 
 BackendConfig = Annotated[
