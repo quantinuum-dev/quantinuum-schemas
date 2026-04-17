@@ -7,7 +7,18 @@ as our backend credential classes handle those.
 
 # pylint: disable=too-many-lines,no-member
 import abc
-from typing import Any, Dict, Literal, Optional, Type, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Literal,
+    Optional,
+    Protocol,
+    Type,
+    TypeVar,
+    Union,
+)
+from uuid import UUID
 import warnings
 
 from pydantic import ConfigDict, PositiveInt, field_validator, model_validator
@@ -196,7 +207,43 @@ class QuantinuumCompilerOptions(QuantinuumOptions):
     """
 
 
-class QuantinuumConfig(BaseBackendConfig):
+class Batchable(Protocol):
+    """Helper class for checking batch params."""
+
+    batch_id: UUID | None
+    attempt_batching: bool
+    targets_hardware_device: Callable[..., bool]
+
+
+BatchableT = TypeVar("BatchableT", bound=Batchable)
+
+
+class BatchingValidationMixin:
+    """Mixin for batching model validators."""
+
+    @model_validator(mode="after")
+    def check_batch_id_requires_attempt_batching(self: BatchableT) -> BatchableT:
+        """Fails if batch_id is set and attempt_batching is False."""
+        if self.batch_id is not None and not self.attempt_batching:
+            raise ValueError(
+                "batch id can only be set if attempt_batching is set to True."
+            )
+        return self
+
+    @model_validator(mode="after")
+    def warn_if_backend_doesnt_support_batching(self: BatchableT) -> BatchableT:
+        """Warns if attempt_batching is true for a backend that doesn't support batching"""
+
+        if self.attempt_batching and not self.targets_hardware_device():
+            warnings.warn(
+                "Batching is not supported by this backend. "
+                "Your job will be submitted as a non-batch job.",
+                RuntimeWarning,
+            )
+        return self
+
+
+class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
     """Runs circuits on Quantinuum's quantum devices and simulators.
 
     Args:
@@ -204,6 +251,7 @@ class QuantinuumConfig(BaseBackendConfig):
         simulator: If device_name is a simulator, the type of simulator to use.
         machine_debug: Whether to run in machine debug mode.
         attempt_batching: Whether to attempt batching of circuits.
+        batch_id: Optional id for batching jobs. Can only be set if attempt_batching=True.
         allow_implicit_swaps: Whether to allow implicit swaps in the compilation process.
         postprocess:
           Apply end-of-circuit simplifications and classical postprocessing
@@ -231,6 +279,7 @@ class QuantinuumConfig(BaseBackendConfig):
     simulator: str = "state-vector"
     machine_debug: bool = False
     attempt_batching: bool = False
+    batch_id: Optional[UUID] = None
     # Parameters below are passed into QuantinuumBackend.compilation_config in their own class.
     allow_implicit_swaps: bool = True
     # Parameters below are kwargs used in QuantinuumBackend.process_circuits().
@@ -275,6 +324,16 @@ class QuantinuumConfig(BaseBackendConfig):
             )
 
         return self
+
+    def targets_hardware_device(self) -> bool:
+        """Helper function to identify hardware backends."""
+        if self.device_name.endswith("SC"):
+            return False
+        if self.device_name.endswith("Emulator"):
+            return False
+        if self.device_name.endswith("E"):
+            return False
+        return True
 
 
 class IBMQConfig(BaseBackendConfig):
@@ -452,7 +511,7 @@ class HeliosEmulatorConfig(BaseEmulatorConfig):
     runtime: HeliosRuntime = Field(default_factory=HeliosRuntime)
 
 
-class HeliosConfig(BaseBackendConfig):
+class HeliosConfig(BaseBackendConfig, BatchingValidationMixin):
     """Configuration for Helios generation QPUs, emulators and checkers."""
 
     type: Literal["HeliosConfig"] = "HeliosConfig"
@@ -463,6 +522,7 @@ class HeliosConfig(BaseBackendConfig):
     max_cost: float | None = None
 
     attempt_batching: bool = False
+    batch_id: Optional[UUID] = None
     max_batch_cost: float = 2000.0
 
     options: QuantinuumOptions | None = None
@@ -480,8 +540,6 @@ class HeliosConfig(BaseBackendConfig):
             )
 
         if self.emulator_config is not None:
-            if self.attempt_batching:
-                raise ValueError("Batching not available for emulators.")
             if self.system_name not in KNOWN_NEXUS_HELIOS_EMULATORS:
                 if self.emulator_config.simulator.type == "ClassicalReplaySimulator":
                     raise ValueError(
@@ -506,6 +564,14 @@ class HeliosConfig(BaseBackendConfig):
                         f"error_model.seed will be ignored for {self.system_name}"
                     )
         return self
+
+    def targets_hardware_device(self) -> bool:
+        """Helper function to identify hardware backends."""
+        if self.system_name.endswith("SC"):
+            return False
+        if self.emulator_config is not None:
+            return False
+        return True
 
 
 BackendConfig = Annotated[
