@@ -1,3 +1,10 @@
+## 7.7.0 (2026-04-17)
+
+
+### Added
+
+- Batch id for QuantinuumConfig and HeliosConfig (#59).
+
 ## 7.6.0 (2026-03-13)
 
 
