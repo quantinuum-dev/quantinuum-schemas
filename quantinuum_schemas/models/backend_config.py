@@ -212,6 +212,7 @@ class Batchable(Protocol):
 
     batch_id: UUID | None
     attempt_batching: bool
+    max_batch_cost: float | None
     targets_hardware_device: Callable[..., bool]
 
 
@@ -239,6 +240,17 @@ class BatchingValidationMixin:
                 "Batching is not supported by this backend. "
                 "Your job will be submitted as a non-batch job.",
                 RuntimeWarning,
+            )
+        return self
+    
+    @model_validator(mode="after")
+    def warn_if_max_batch_cost_is_unset(self: BatchableT) -> BatchableT:
+        """Warns if attempt_batching is true and batch_max_hqc is unset"""
+
+        if self.attempt_batching and self.max_batch_cost is None:
+            warnings.warn(
+                "max_batch_cost is unset. Your organisation's value will be used instead.",
+                RuntimeWarning
             )
         return self
 
