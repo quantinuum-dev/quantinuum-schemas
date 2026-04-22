@@ -287,7 +287,7 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
     noisy_simulation: bool = True
     target_2qb_gate: Optional[str] = None
     user_group: Optional[str] = None
-    max_batch_cost: int = 2000
+    max_batch_cost: Optional[float] = None
     compiler_options: Optional[QuantinuumCompilerOptions] = None
     no_opt: bool = True
     allow_2q_gate_rebase: bool = False
@@ -523,7 +523,7 @@ class HeliosConfig(BaseBackendConfig, BatchingValidationMixin):
 
     attempt_batching: bool = False
     batch_id: Optional[UUID] = None
-    max_batch_cost: float = 2000.0
+    max_batch_cost: Optional[float] = None
 
     options: QuantinuumOptions | None = None
 
