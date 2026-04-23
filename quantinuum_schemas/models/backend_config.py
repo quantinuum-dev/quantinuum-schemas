@@ -212,6 +212,7 @@ class Batchable(Protocol):
 
     batch_id: UUID | None
     attempt_batching: bool
+    max_batch_cost: float | None
     targets_hardware_device: Callable[..., bool]
 
 
@@ -238,6 +239,17 @@ class BatchingValidationMixin:
             warnings.warn(
                 "Batching is not supported by this backend. "
                 "Your job will be submitted as a non-batch job.",
+                RuntimeWarning,
+            )
+        return self
+
+    @model_validator(mode="after")
+    def warn_if_max_batch_cost_is_unset(self: BatchableT) -> BatchableT:
+        """Warns if attempt_batching is true and batch_max_hqc is unset"""
+
+        if self.attempt_batching and self.max_batch_cost is None:
+            warnings.warn(
+                "max_batch_cost is unset. Your organisation's value will be used instead.",
                 RuntimeWarning,
             )
         return self
@@ -287,7 +299,7 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
     noisy_simulation: bool = True
     target_2qb_gate: Optional[str] = None
     user_group: Optional[str] = None
-    max_batch_cost: int = 2000
+    max_batch_cost: Optional[float] = None
     compiler_options: Optional[QuantinuumCompilerOptions] = None
     no_opt: bool = True
     allow_2q_gate_rebase: bool = False
@@ -523,7 +535,7 @@ class HeliosConfig(BaseBackendConfig, BatchingValidationMixin):
 
     attempt_batching: bool = False
     batch_id: Optional[UUID] = None
-    max_batch_cost: float = 2000.0
+    max_batch_cost: Optional[float] = None
 
     options: QuantinuumOptions | None = None
 

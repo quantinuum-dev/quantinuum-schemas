@@ -1,3 +1,11 @@
+## 7.7.1 (2026-04-23)
+
+
+### Fixed
+
+- Make max_batch_cost optional with default none, and a float.
+
+
 ## 7.7.0 (2026-04-17)
 
 
