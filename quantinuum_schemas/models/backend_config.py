@@ -242,7 +242,7 @@ class BatchingValidationMixin:
                 RuntimeWarning,
             )
         return self
-    
+
     @model_validator(mode="after")
     def warn_if_max_batch_cost_is_unset(self: BatchableT) -> BatchableT:
         """Warns if attempt_batching is true and batch_max_hqc is unset"""
@@ -250,7 +250,7 @@ class BatchingValidationMixin:
         if self.attempt_batching and self.max_batch_cost is None:
             warnings.warn(
                 "max_batch_cost is unset. Your organisation's value will be used instead.",
-                RuntimeWarning
+                RuntimeWarning,
             )
         return self
 

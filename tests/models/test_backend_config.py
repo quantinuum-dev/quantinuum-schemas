@@ -186,20 +186,32 @@ def test_attempt_batching_against_simulators() -> None:
             system_name="Helios-1E",
             emulator_config=HeliosEmulatorConfig(),
             attempt_batching=True,
-            max_batch_cost=2000.0
+            max_batch_cost=2000.0,
         )
-        HeliosConfig(system_name="Helios-1SC", attempt_batching=True, max_batch_cost=2000.0)
-        QuantinuumConfig(device_name="H2-1E", attempt_batching=True, max_batch_cost=2000.0)
-        QuantinuumConfig(device_name="H1-Emulator", attempt_batching=True, max_batch_cost=2000.0)
-        QuantinuumConfig(device_name="H2-1SC", attempt_batching=True, max_batch_cost=2000.0)
+        HeliosConfig(
+            system_name="Helios-1SC", attempt_batching=True, max_batch_cost=2000.0
+        )
+        QuantinuumConfig(
+            device_name="H2-1E", attempt_batching=True, max_batch_cost=2000.0
+        )
+        QuantinuumConfig(
+            device_name="H1-Emulator", attempt_batching=True, max_batch_cost=2000.0
+        )
+        QuantinuumConfig(
+            device_name="H2-1SC", attempt_batching=True, max_batch_cost=2000.0
+        )
 
     assert len(record) == 5, record
     assert all([error_string in str(i.message) for i in record]), record
 
     with warnings.catch_warnings(record=True) as captured_warnings:
         # test valid configs don't throw warning.
-        HeliosConfig(system_name="Helios-1", attempt_batching=True, max_batch_cost=2000.0)
-        QuantinuumConfig(device_name="H2-2", attempt_batching=True, max_batch_cost=2000.0)
+        HeliosConfig(
+            system_name="Helios-1", attempt_batching=True, max_batch_cost=2000.0
+        )
+        QuantinuumConfig(
+            device_name="H2-2", attempt_batching=True, max_batch_cost=2000.0
+        )
         # if attempt batching is false, no warning is throw
         HeliosConfig(system_name="Helios-1E", emulator_config=HeliosEmulatorConfig())
         HeliosConfig(system_name="Helios-1SC")
@@ -208,9 +220,12 @@ def test_attempt_batching_against_simulators() -> None:
         QuantinuumConfig(device_name="H2-1SC")
     assert not captured_warnings
 
+
 def test_match_batch_cost_warns_if_needed() -> None:
     """Test warning if attempt_batching is True and max_batch_cost is unset."""
-    error_string = "max_batch_cost is unset. Your organisation's value will be used instead."
+    error_string = (
+        "max_batch_cost is unset. Your organisation's value will be used instead."
+    )
     with pytest.warns(RuntimeWarning) as record:
         # test warning if max_batch_cost is unset.
         HeliosConfig(system_name="Helios-1", attempt_batching=True)
@@ -221,6 +236,10 @@ def test_match_batch_cost_warns_if_needed() -> None:
 
     with warnings.catch_warnings(record=True) as captured_warnings:
         # test warning isn't thrown when max_batch_cost is set.
-        HeliosConfig(system_name="Helios-1", attempt_batching=True, max_batch_cost=2000.0)
-        QuantinuumConfig(device_name="H2-2", attempt_batching=True, max_batch_cost=2000.0)
+        HeliosConfig(
+            system_name="Helios-1", attempt_batching=True, max_batch_cost=2000.0
+        )
+        QuantinuumConfig(
+            device_name="H2-2", attempt_batching=True, max_batch_cost=2000.0
+        )
     assert not captured_warnings
