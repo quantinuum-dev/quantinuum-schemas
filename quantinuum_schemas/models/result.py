@@ -9,7 +9,7 @@ from typing import Annotated, TypeAlias
 from pydantic import StringConstraints
 
 QShotValType: TypeAlias = int | bool | float
-QSysShotItemValue: TypeAlias = QShotValType | list[QShotValType]
+QSysShotItemValue: TypeAlias = QShotValType | list[int] | list[bool] | list[float]
 
 QSysShotItem: TypeAlias = tuple[
     Annotated[str, StringConstraints(max_length=256)], QSysShotItemValue
