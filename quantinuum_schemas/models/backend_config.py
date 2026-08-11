@@ -288,7 +288,7 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
 
     type: Literal["QuantinuumConfig"] = "QuantinuumConfig"
     device_name: str
-    simulator: str = "state-vector"
+    simulator: str | None = None
     machine_debug: bool = False
     attempt_batching: bool = False
     batch_id: Optional[UUID] = None
@@ -296,7 +296,7 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
     allow_implicit_swaps: bool = True
     # Parameters below are kwargs used in QuantinuumBackend.process_circuits().
     postprocess: bool = False
-    noisy_simulation: bool = True
+    noisy_simulation: bool | None = None
     target_2qb_gate: Optional[str] = None
     user_group: Optional[str] = None
     max_batch_cost: Optional[float] = None
