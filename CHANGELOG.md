@@ -1,3 +1,11 @@
+## 7.7.2 (2026-08-11)
+
+
+### Fixed
+
+- Update simulator and noisy_simulation types to allow none (#64).
+- Narrow type definition for models.results.qsysshotitemvalue (#63).
+
 ## 7.7.1 (2026-04-23)
 
 
@@ -208,6 +216,6 @@
 - Support valid types for compiler options (#4).
 
 
-## v1.0.0 (2024-10-21)
+## 1.0.0 (2024-10-21)
 
 First release.
