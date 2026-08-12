@@ -243,3 +243,10 @@ def test_match_batch_cost_warns_if_needed() -> None:
             device_name="H2-2", attempt_batching=True, max_batch_cost=2000.0
         )
     assert not captured_warnings
+
+
+@pytest.mark.parametrize("device_name", ["Helios-1", "Sol"])
+def test_quantinuum_config_rejects_helios_and_sol(device_name: str) -> None:
+    """QuantinuumConfig should not accept Helios/Sol targets."""
+    with pytest.raises(ValidationError):
+        QuantinuumConfig(device_name=device_name)
