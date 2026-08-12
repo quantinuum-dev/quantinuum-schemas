@@ -1,3 +1,7 @@
+## 7.8.0 (2026-08-12)
+
+- Remove support for Helios devices in QuantinuumConfig (#66).
+
 ## 7.7.2 (2026-08-11)
 
 

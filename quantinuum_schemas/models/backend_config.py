@@ -328,11 +328,10 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
                 DeprecationWarning,
             )
 
-        if self.device_name.startswith("Helios"):
-            warnings.warn(
-                "QuantinuumConfig is deprecated for submission to Helios systems and support "
-                "will be removed in a future release. Please use HeliosConfig instead.",
-                DeprecationWarning,
+        if self.device_name.startswith(("Helios", "Sol")):
+            raise ValueError(
+                "QuantinuumConfig is not supported for submission to Helios systems. "
+                "Please use HeliosConfig instead."
             )
 
         return self
