@@ -7,6 +7,7 @@ as our backend credential classes handle those.
 
 # pylint: disable=too-many-lines,no-member
 import abc
+import re
 from typing import (
     Any,
     Callable,
@@ -46,6 +47,15 @@ from .base import BaseModel
 ST = TypeVar("ST", bound="BaseModel")
 
 KNOWN_NEXUS_HELIOS_EMULATORS = ["Helios-1E-lite"]
+
+
+def _targets_emulator_device(device_name: str) -> bool:
+    """Identify whether a device name targets an emulator.
+    Any backend ending in -Emulator, -simulator, -E, -#E, -#LE, -#E-lite or -#SC is
+    considered an emulator."""
+    return bool(
+        re.search(r"(?:-Emulator|-simulator|-E|-\d+E|-\d+LE|-\d+E-lite)$", device_name)
+    )
 
 
 class BaseBackendConfig(BaseModel, abc.ABC):
@@ -308,6 +318,20 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
     max_cost: Optional[int] = None
     error_params: Optional[UserErrorParams] = None
 
+    @model_validator(mode="before")
+    @classmethod
+    def set_default_simulator_for_emulators(
+        cls, values: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Set defaults for emulator targets when values are not explicitly set."""
+        device_name = values.get("device_name")
+        if device_name is not None and _targets_emulator_device(device_name):
+            if values.get("simulator") is None:
+                values["simulator"] = "state-vector"
+            if values.get("noisy_simulation") is None:
+                values["noisy_simulation"] = True
+        return values
+
     @model_validator(mode="after")
     def show_deprecation_warnings(self) -> Self:
         """Warn about deprecated usage."""
@@ -329,22 +353,19 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
             )
 
         if self.device_name.startswith(("Helios", "Sol")):
-            raise ValueError(
-                "QuantinuumConfig is not supported for submission to Helios systems. "
-                "Please use HeliosConfig instead."
+            warnings.warn(
+                "QuantinuumConfig is deprecated for submission to Helios systems and support "
+                "will be removed in a future release. Please use HeliosConfig instead.",
+                DeprecationWarning,
             )
 
         return self
 
     def targets_hardware_device(self) -> bool:
         """Helper function to identify hardware backends."""
-        if self.device_name.endswith("SC"):
-            return False
-        if self.device_name.endswith("Emulator"):
-            return False
-        if self.device_name.endswith("E"):
-            return False
-        return True
+        return not _targets_emulator_device(
+            self.device_name
+        ) and not self.device_name.endswith("SC")
 
 
 class IBMQConfig(BaseBackendConfig):
