@@ -325,7 +325,7 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
     ) -> Dict[str, Any]:
         """Set defaults for emulator targets when values are not explicitly set."""
         device_name = values.get("device_name")
-        # TODO: SC devices shouldn't be needing emulator settings
+        # SC devices shouldn't be needing emulator settings
         # but for now we will keep the behavior the same as before.
         if device_name is not None and (
             (_targets_emulator_device(device_name)) or device_name.endswith("SC")
