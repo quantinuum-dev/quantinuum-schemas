@@ -1,3 +1,12 @@
+
+## 7.8.1 (2026-08-14)
+
+
+### Added
+
+- Set default simulator for emulator devices in QuantinuumConfig.
+
+
 ## 7.8.0 (2026-08-12)
 
 - Remove support for Helios devices in QuantinuumConfig (#66).
