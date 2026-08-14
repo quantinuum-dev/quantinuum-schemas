@@ -325,7 +325,11 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
     ) -> Dict[str, Any]:
         """Set defaults for emulator targets when values are not explicitly set."""
         device_name = values.get("device_name")
-        if device_name is not None and _targets_emulator_device(device_name):
+        # SC devices shouldn't be needing emulator settings
+        # but for now we will keep the behavior the same as before.
+        if device_name is not None and (
+            (_targets_emulator_device(device_name)) or device_name.endswith("SC")
+        ):
             if values.get("simulator") is None:
                 values["simulator"] = "state-vector"
             if values.get("noisy_simulation") is None:

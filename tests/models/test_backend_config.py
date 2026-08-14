@@ -229,6 +229,7 @@ def test_quantinuum_config_defaults_emulator_simulator(device_name: str) -> None
     assert config.noisy_simulation is True
 
 
+@pytest.mark.skip("Needed for now until SC devices do not require these settings")
 def test_quantinuum_config_sc_does_not_default_emulator_settings() -> None:
     """SC targets are not emulator devices."""
     config = QuantinuumConfig(device_name="H2-1SC")

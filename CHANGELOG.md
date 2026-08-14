@@ -1,4 +1,11 @@
 
+## 7.8.2 (2026-08-14)
+
+
+### Fixed
+
+- Update emulator target defaults to include SC devices in QuantinuumConfig.
+
 ## 7.8.1 (2026-08-14)
 
 
