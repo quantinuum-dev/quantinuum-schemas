@@ -295,12 +295,14 @@ def test_quantinuum_config_warns_for_helios_and_sol(device_name: str) -> None:
     with pytest.warns(DeprecationWarning, match="QuantinuumConfig is deprecated"):
         QuantinuumConfig(device_name=device_name)
 
-def test_backend_config_warns_if_extra_fields() -> None:
+@pytest.mark.parametrize("input_cls", [BaseBackendConfig, AerConfig])
+def test_backend_config_warns_if_extra_fields(input_cls: BaseBackendConfig) -> None:
     """BackendConfigs should warn for extra fields."""
     with pytest.warns(UnknownFieldWarning, match="is not known this BackendConfig and will be ignored"):
-        BaseBackendConfig(simualtor="state-vector")
+        input_cls(simualtor="state-vector")
 
-def test_backend_config_warns_if_extra_fields_from_dict() -> None:
+@pytest.mark.parametrize("input_cls", [BaseBackendConfig, AerConfig])
+def test_backend_config_warns_if_extra_fields_from_dict(input_cls: BaseBackendConfig) -> None:
     backend_dict = {"simualtor": "state-vector"}
     with pytest.warns(UnknownFieldWarning, match="is not known this BackendConfig and will be ignored"):
-        BaseBackendConfig.model_validate(backend_dict)
+        input_cls.model_validate(backend_dict)
