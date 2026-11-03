@@ -287,22 +287,28 @@ class BatchingValidationMixin:
             )
         return self
 
+
 class MaxCostValidationMixin:
     """Mixin to warn for deprecated 'max_cost' field usage"""
+
     @model_validator(mode="before")
     @classmethod
-    def show_deleted_max_cost_field_warning(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    def show_deleted_max_cost_field_warning(
+        cls, values: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Warn about fields that are no longer supported."""
         if values.get("max_cost") is not None:
             warnings.warn(
-                f"'max_cost' is no longer supported for this backend."
+                "'max_cost' is no longer supported for this backend."
                 "The field will be ignored in the submission.",
                 UnknownFieldWarning,
             )
         return values
 
 
-class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin, MaxCostValidationMixin):
+class QuantinuumConfig(
+    BaseBackendConfig, BatchingValidationMixin, MaxCostValidationMixin
+):
     """Runs circuits on Quantinuum's quantum devices and simulators.
 
     Args:
@@ -312,9 +318,6 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin, MaxCostValida
         attempt_batching: Whether to attempt batching of circuits.
         batch_id: Optional id for batching jobs. Can only be set if attempt_batching=True.
         allow_implicit_swaps: Whether to allow implicit swaps in the compilation process.
-        postprocess:
-          Apply end-of-circuit simplifications and classical postprocessing
-          to improve fidelity of results
         noisy_simulation: Whether to use a noisy simulation with an error model.
         target_2qb_gate: The target 2-qubit gate for the compilation process.
         compiler_options: Additional options for the Quantinuum Systems compiler.
@@ -327,10 +330,7 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin, MaxCostValida
         simplify_initial: Apply the pytket SimplifyInitial pass to improve fidelity of
           results assuming all qubits initialized to zero.
         error_params: Additional error parameters for execution on an emulator.
-        user_group: The user group for the compilation jobs.
         max_batch_cost: The maximum HQC cost for a batch of programs (total).
-        max_cost: (Deprecated) The maximum HQC cost for a single program. Please
-          specify max_cost in the execute job submission parameters per-job item instead.
     """
 
     type: Literal["QuantinuumConfig"] = "QuantinuumConfig"

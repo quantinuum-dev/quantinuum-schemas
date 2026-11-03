@@ -328,21 +328,19 @@ def test_quantinuumconfig_deleted_field_warning() -> None:
         QuantinuumConfig(device_name="H2-1", postprocess=True)  # type: ignore[call-arg]
 
     with pytest.warns(
-            UnknownFieldWarning,
-            match="'user_group' is no longer supported for this backend.",
-        ):
-        QuantinuumConfig(device_name="H2-1", user_group=uuid4())
+        UnknownFieldWarning,
+        match="'user_group' is no longer supported for this backend.",
+    ):
+        QuantinuumConfig(device_name="H2-1", user_group=uuid4())  # type: ignore[call-arg]
 
     with pytest.warns(
         UnknownFieldWarning,
         match="'max_cost' is no longer supported for this backend.",
     ):
-        QuantinuumConfig(device_name="H2-1", max_cost=3)
+        QuantinuumConfig(device_name="H2-1", max_cost=3)  # type: ignore[call-arg]
 
     with pytest.warns(
         UnknownFieldWarning,
         match="'max_cost' is no longer supported.",
-        ):
-        HeliosConfig(system_name="Helios-1E", max_cost=3)
-
-    
+    ):
+        HeliosConfig(system_name="Helios-1E", max_cost=3)  # type: ignore[call-arg]
