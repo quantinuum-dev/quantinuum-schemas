@@ -299,7 +299,7 @@ class MaxCostValidationMixin:
         """Warn about fields that are no longer supported."""
         if values.get("max_cost") is not None:
             warnings.warn(
-                "'max_cost' is no longer supported for this backend."
+                "'max_cost' is no longer supported for this backend. "
                 "The field will be ignored in the submission.",
                 UnknownFieldWarning,
             )
@@ -376,28 +376,27 @@ class QuantinuumConfig(
         """Warn about fields that are no longer supported."""
         if values.get("postprocess") is not None:
             warnings.warn(
-                "'postprocess' is no longer supported for this backend."
+                "'postprocess' is no longer supported for this backend. "
                 "The field will be ignored in the submission.",
                 UnknownFieldWarning,
             )
         if values.get("user_group") is not None:
             warnings.warn(
-                "'user_group' is no longer supported for this backend."
-                "The field will be ignored in the submission."
+                "'user_group' is no longer supported for this backend. "
+                "The field will be ignored in the submission. "
                 "Please specify user_group in the execute job submission parameters instead.",
                 UnknownFieldWarning,
             )
         return values
 
     @model_validator(mode="after")
-    def show_deprecation_warnings(self) -> Self:
-        """Warn about deprecated usage."""
+    def disallow_helios_devices(self) -> Self:
+        """Raise an error if the device is a Helios or Sol system."""
 
         if self.device_name.startswith(("Helios", "Sol")):
-            warnings.warn(
-                "QuantinuumConfig is deprecated for submission to Helios systems and support "
-                "will be removed in a future release. Please use HeliosConfig instead.",
-                DeprecationWarning,
+            raise ValueError(
+                "QuantinuumConfig is no longer supported for submission to Helios systems. "
+                "Please use HeliosConfig instead.",
             )
 
         return self

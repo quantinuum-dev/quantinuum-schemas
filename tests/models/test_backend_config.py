@@ -290,9 +290,9 @@ def test_match_batch_cost_warns_if_needed() -> None:
     reason="QuantinuumConfig warns instead of rejecting these targets until full deprecation is done."
 )
 @pytest.mark.parametrize("device_name", ["Helios-1", "Sol"])
-def test_quantinuum_config_warns_for_helios_and_sol(device_name: str) -> None:
+def test_quantinuum_config_errors_for_helios_and_sol(device_name: str) -> None:
     """QuantinuumConfig should warn for deprecated Helios/Sol targets."""
-    with pytest.warns(DeprecationWarning, match="QuantinuumConfig is deprecated"):
+    with pytest.raises(ValueError, match="QuantinuumConfig is deprecated"):
         QuantinuumConfig(device_name=device_name)
 
 
