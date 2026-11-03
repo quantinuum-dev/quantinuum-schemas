@@ -75,6 +75,25 @@ class BaseBackendConfig(BaseModel, abc.ABC):
         """Construct the class from a dict and perform validation."""
         return cls(**jsonable)
 
+    @model_validator(mode='before')
+    @classmethod
+    def warn_for_extra_fields(cls, values):
+        expected_fields = set(cls.model_fields.keys())
+        submitted_fields = set(values.keys())
+        unknown_fields = submitted_fields - expected_fields
+        
+        if unknown_fields:
+            for field in unknown_fields:
+                print(field)
+                warnings.warn(
+                    f"'{field}' is not known this BackendConfig and will be ignored."
+                    "this may be because the field was deprecated and has been deleted,"
+                    "or may be the result of a typo.",
+                    DeprecationWarning,
+                )
+
+        return values
+
 
 class AerConfig(BaseBackendConfig):
     """Qiskit Aer QASM simulator."""

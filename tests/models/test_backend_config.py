@@ -8,6 +8,7 @@ from pydantic import ValidationError
 
 from quantinuum_schemas.models.backend_config import (
     AerConfig,
+    BaseBackendConfig,
     HeliosConfig,
     HeliosEmulatorConfig,
     QuantinuumConfig,
@@ -292,3 +293,8 @@ def test_quantinuum_config_warns_for_helios_and_sol(device_name: str) -> None:
     """QuantinuumConfig should warn for deprecated Helios/Sol targets."""
     with pytest.warns(DeprecationWarning, match="QuantinuumConfig is deprecated"):
         QuantinuumConfig(device_name=device_name)
+
+def test_backend_config_warns_if_extra_fields() -> None:
+    """BackendConfigs should warn for extra fields."""
+    with pytest.warns(DeprecationWarning, match="is not known this BackendConfig and will be ignored"):
+        QuantinuumConfig(simualtor="state-vector", device_name="H1-1E")
