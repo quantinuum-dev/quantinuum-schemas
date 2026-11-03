@@ -295,14 +295,25 @@ def test_quantinuum_config_warns_for_helios_and_sol(device_name: str) -> None:
     with pytest.warns(DeprecationWarning, match="QuantinuumConfig is deprecated"):
         QuantinuumConfig(device_name=device_name)
 
-@pytest.mark.parametrize("input_cls", [BaseBackendConfig, AerConfig])
-def test_backend_config_warns_if_extra_fields(input_cls: BaseBackendConfig) -> None:
-    """BackendConfigs should warn for extra fields."""
-    with pytest.warns(UnknownFieldWarning, match="is not known this BackendConfig and will be ignored"):
-        input_cls(simualtor="state-vector")
 
 @pytest.mark.parametrize("input_cls", [BaseBackendConfig, AerConfig])
-def test_backend_config_warns_if_extra_fields_from_dict(input_cls: BaseBackendConfig) -> None:
+def test_backend_config_warns_if_extra_fields(
+    input_cls: type[BaseBackendConfig],
+) -> None:
+    """BackendConfigs should warn for extra fields."""
+    with pytest.warns(
+        UnknownFieldWarning, match="is not known this BackendConfig and will be ignored"
+    ):
+        input_cls(simualtor="state-vector")  # type: ignore[call-arg]
+
+
+@pytest.mark.parametrize("input_cls", [BaseBackendConfig, AerConfig])
+def test_backend_config_warns_if_extra_fields_from_dict(
+    input_cls: type[BaseBackendConfig],
+) -> None:
+    """BackendConfigs should warn for extra fields when initialised from a dict."""
     backend_dict = {"simualtor": "state-vector"}
-    with pytest.warns(UnknownFieldWarning, match="is not known this BackendConfig and will be ignored"):
+    with pytest.warns(
+        UnknownFieldWarning, match="is not known this BackendConfig and will be ignored"
+    ):
         input_cls.model_validate(backend_dict)

@@ -48,6 +48,7 @@ ST = TypeVar("ST", bound="BaseModel")
 
 KNOWN_NEXUS_HELIOS_EMULATORS = ["Helios-1E-lite"]
 
+
 class UnknownFieldWarning(UserWarning):
     """Warning for fields that don't exist in a backend config."""
 
@@ -78,16 +79,16 @@ class BaseBackendConfig(BaseModel, abc.ABC):
         """Construct the class from a dict and perform validation."""
         return cls(**jsonable)
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     @classmethod
-    def warn_for_extra_fields(cls, values):
+    def warn_for_extra_fields(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Warn if any extra fields are set when creating the model."""
         expected_fields = set(cls.model_fields.keys())
         submitted_fields = set(values.keys())
         unknown_fields = submitted_fields - expected_fields
-        
+
         if unknown_fields:
             for field in unknown_fields:
-                print(field)
                 warnings.warn(
                     f"'{field}' is not known this BackendConfig and will be ignored."
                     "this may be because the field was deprecated and has been deleted,"
