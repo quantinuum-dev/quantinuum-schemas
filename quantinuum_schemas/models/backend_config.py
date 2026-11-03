@@ -328,7 +328,6 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
     # Parameters below are passed into QuantinuumBackend.compilation_config in their own class.
     allow_implicit_swaps: bool = True
     # Parameters below are kwargs used in QuantinuumBackend.process_circuits().
-    postprocess: bool = False
     noisy_simulation: bool | None = None
     target_2qb_gate: Optional[str] = None
     user_group: Optional[str] = None
@@ -357,6 +356,18 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
                 values["simulator"] = "state-vector"
             if values.get("noisy_simulation") is None:
                 values["noisy_simulation"] = True
+        return values
+
+    @model_validator(mode="before")
+    @classmethod
+    def show_deleted_fields_warnings(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Warn about fields that are no longer supported."""
+        if values.get("postprocess") is not None:
+            warnings.warn(
+                "'QuantinuumConfig.postprocess' is no longer supported."
+                "The field will be ignored in the submission.",
+                UnknownFieldWarning,
+            )
         return values
 
     @model_validator(mode="after")

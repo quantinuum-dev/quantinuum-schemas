@@ -317,3 +317,12 @@ def test_backend_config_warns_if_extra_fields_from_dict(
         UnknownFieldWarning, match="is not known for this backend and will be ignored. "
     ):
         input_cls.model_validate(backend_dict)
+
+
+def test_quantinuumconfig_deleted_field_warning() -> None:
+    """QuantinuumConfig should warn for removed fields."""
+    with pytest.warns(
+        UnknownFieldWarning,
+        match="'QuantinuumConfig.postprocess' is no longer supported.",
+    ):
+        QuantinuumConfig(device_name="H2-1", postprocess=True)  # type: ignore[call-arg]
