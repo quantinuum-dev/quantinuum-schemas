@@ -15,6 +15,7 @@ from quantinuum_schemas.models.backend_config import (
     SeleneConfig,
     QuantinuumCompilerOptions,
     SelenePlusConfig,
+    UnknownFieldWarning,
 )
 from quantinuum_schemas.models.emulator_config import (
     ClassicalReplaySimulator,
@@ -296,5 +297,10 @@ def test_quantinuum_config_warns_for_helios_and_sol(device_name: str) -> None:
 
 def test_backend_config_warns_if_extra_fields() -> None:
     """BackendConfigs should warn for extra fields."""
-    with pytest.warns(DeprecationWarning, match="is not known this BackendConfig and will be ignored"):
-        QuantinuumConfig(simualtor="state-vector", device_name="H1-1E")
+    with pytest.warns(UnknownFieldWarning, match="is not known this BackendConfig and will be ignored"):
+        BaseBackendConfig(simualtor="state-vector")
+
+def test_backend_config_warns_if_extra_fields_from_dict() -> None:
+    backend_dict = {"simualtor": "state-vector"}
+    with pytest.warns(UnknownFieldWarning, match="is not known this BackendConfig and will be ignored"):
+        BaseBackendConfig.model_validate(backend_dict)
