@@ -49,6 +49,10 @@ ST = TypeVar("ST", bound="BaseModel")
 KNOWN_NEXUS_HELIOS_EMULATORS = ["Helios-1E-lite"]
 
 
+class UnknownFieldWarning(UserWarning):
+    """Warning for fields that don't exist in a backend config."""
+
+
 def _targets_emulator_device(device_name: str) -> bool:
     """Identify whether a device name targets an emulator.
     Any backend ending in -Emulator, -simulator, -E, -#E, -#LE, -#E-lite or -#SC is
@@ -74,6 +78,25 @@ class BaseBackendConfig(BaseModel, abc.ABC):
     def from_serializable(cls: Type[ST], jsonable: Dict[str, Any]) -> ST:
         """Construct the class from a dict and perform validation."""
         return cls(**jsonable)
+
+    @model_validator(mode="before")
+    @classmethod
+    def warn_for_extra_fields(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Warn if any extra fields are set when creating the model."""
+        expected_fields = set(cls.model_fields.keys())
+        submitted_fields = set(values.keys())
+        unknown_fields = submitted_fields - expected_fields
+
+        if unknown_fields:
+            for field in unknown_fields:
+                warnings.warn(
+                    f"'{field}' is not known for this backend and will be ignored. "
+                    "This may be because the field was deprecated and has been deleted, "
+                    "or may be the result of a typo.",
+                    UnknownFieldWarning,
+                )
+
+        return values
 
 
 class AerConfig(BaseBackendConfig):
