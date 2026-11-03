@@ -287,8 +287,22 @@ class BatchingValidationMixin:
             )
         return self
 
+class MaxCostValidationMixin:
+    """Mixin to warn for deprecated 'max_cost' field usage"""
+    @model_validator(mode="before")
+    @classmethod
+    def show_deleted_max_cost_field_warning(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Warn about fields that are no longer supported."""
+        if values.get("max_cost") is not None:
+            warnings.warn(
+                f"'max_cost' is no longer supported for this backend."
+                "The field will be ignored in the submission.",
+                UnknownFieldWarning,
+            )
+        return values
 
-class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
+
+class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin, MaxCostValidationMixin):
     """Runs circuits on Quantinuum's quantum devices and simulators.
 
     Args:
@@ -362,20 +376,13 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
         """Warn about fields that are no longer supported."""
         if values.get("postprocess") is not None:
             warnings.warn(
-                "'QuantinuumConfig.postprocess' is no longer supported."
+                "'postprocess' is no longer supported for this backend."
                 "The field will be ignored in the submission.",
                 UnknownFieldWarning,
             )
         if values.get("user_group") is not None:
             warnings.warn(
-                "'QuantinuumConfig.user_group' is no longer supported."
-                "The field will be ignored in the submission."
-                "Please specify user_group in the execute job submission parameters instead.",
-                UnknownFieldWarning,
-            )
-        if values.get("max_cost") is not None:
-            warnings.warn(
-                "'QuantinuumConfig.max_cost' is no longer supported."
+                "'user_group' is no longer supported for this backend."
                 "The field will be ignored in the submission."
                 "Please specify user_group in the execute job submission parameters instead.",
                 UnknownFieldWarning,
@@ -577,15 +584,13 @@ class HeliosEmulatorConfig(BaseEmulatorConfig):
     runtime: HeliosRuntime = Field(default_factory=HeliosRuntime)
 
 
-class HeliosConfig(BaseBackendConfig, BatchingValidationMixin):
+class HeliosConfig(BaseBackendConfig, BatchingValidationMixin, MaxCostValidationMixin):
     """Configuration for Helios generation QPUs, emulators and checkers."""
 
     type: Literal["HeliosConfig"] = "HeliosConfig"
 
     system_name: str = "Helios-1"
     emulator_config: HeliosEmulatorConfig | None = None
-
-    max_cost: float | None = None
 
     attempt_batching: bool = False
     batch_id: Optional[UUID] = None
@@ -596,14 +601,6 @@ class HeliosConfig(BaseBackendConfig, BatchingValidationMixin):
     @model_validator(mode="after")
     def check_valid_config(self) -> Self:
         """Perform simple configuration validation."""
-
-        if self.max_cost is not None:
-            warnings.warn(
-                "'HeliosConfig.max_cost' is deprecated and will be "
-                "removed in a future release. Please specify max_cost in the execute job"
-                "submission parameters instead.",
-                DeprecationWarning,
-            )
 
         if self.emulator_config is not None:
             if self.system_name not in KNOWN_NEXUS_HELIOS_EMULATORS:

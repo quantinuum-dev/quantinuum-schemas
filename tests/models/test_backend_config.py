@@ -320,21 +320,29 @@ def test_backend_config_warns_if_extra_fields_from_dict(
 
 
 def test_quantinuumconfig_deleted_field_warning() -> None:
-    """QuantinuumConfig should warn for removed fields."""
+    """QuantinuumConfig and HeliosConfig should warn for removed fields."""
     with pytest.warns(
         UnknownFieldWarning,
-        match="'QuantinuumConfig.postprocess' is no longer supported.",
+        match="'postprocess' is no longer supported for this backend.",
     ):
         QuantinuumConfig(device_name="H2-1", postprocess=True)  # type: ignore[call-arg]
 
     with pytest.warns(
             UnknownFieldWarning,
-            match="'QuantinuumConfig.user_group' is no longer supported.",
+            match="'user_group' is no longer supported for this backend.",
         ):
         QuantinuumConfig(device_name="H2-1", user_group=uuid4())
 
     with pytest.warns(
         UnknownFieldWarning,
-        match="'QuantinuumConfig.max_cost' is no longer supported.",
+        match="'max_cost' is no longer supported for this backend.",
     ):
         QuantinuumConfig(device_name="H2-1", max_cost=3)
+
+    with pytest.warns(
+        UnknownFieldWarning,
+        match="'max_cost' is no longer supported.",
+        ):
+        HeliosConfig(system_name="Helios-1E", max_cost=3)
+
+    
