@@ -90,8 +90,8 @@ class BaseBackendConfig(BaseModel, abc.ABC):
         if unknown_fields:
             for field in unknown_fields:
                 warnings.warn(
-                    f"'{field}' is not known this BackendConfig and will be ignored."
-                    "this may be because the field was deprecated and has been deleted,"
+                    f"'{field}' is not known for this backend and will be ignored. "
+                    "This may be because the field was deprecated and has been deleted, "
                     "or may be the result of a typo.",
                     UnknownFieldWarning,
                 )

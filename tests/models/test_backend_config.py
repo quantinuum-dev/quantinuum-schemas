@@ -302,7 +302,7 @@ def test_backend_config_warns_if_extra_fields(
 ) -> None:
     """BackendConfigs should warn for extra fields."""
     with pytest.warns(
-        UnknownFieldWarning, match="is not known this BackendConfig and will be ignored"
+        UnknownFieldWarning, match="is not known for this backend and will be ignored. "
     ):
         input_cls(simualtor="state-vector")  # type: ignore[call-arg]
 
@@ -314,6 +314,6 @@ def test_backend_config_warns_if_extra_fields_from_dict(
     """BackendConfigs should warn for extra fields when initialised from a dict."""
     backend_dict = {"simualtor": "state-vector"}
     with pytest.warns(
-        UnknownFieldWarning, match="is not known this BackendConfig and will be ignored"
+        UnknownFieldWarning, match="is not known for this backend and will be ignored. "
     ):
         input_cls.model_validate(backend_dict)
