@@ -330,14 +330,12 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
     # Parameters below are kwargs used in QuantinuumBackend.process_circuits().
     noisy_simulation: bool | None = None
     target_2qb_gate: Optional[str] = None
-    user_group: Optional[str] = None
     max_batch_cost: Optional[float] = None
     compiler_options: Optional[QuantinuumCompilerOptions] = None
     no_opt: bool = True
     allow_2q_gate_rebase: bool = False
     leakage_detection: bool = False
     simplify_initial: bool = False
-    max_cost: Optional[int] = None
     error_params: Optional[UserErrorParams] = None
 
     @model_validator(mode="before")
@@ -368,27 +366,25 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
                 "The field will be ignored in the submission.",
                 UnknownFieldWarning,
             )
+        if values.get("user_group") is not None:
+            warnings.warn(
+                "'QuantinuumConfig.user_group' is no longer supported."
+                "The field will be ignored in the submission."
+                "Please specify user_group in the execute job submission parameters instead.",
+                UnknownFieldWarning,
+            )
+        if values.get("max_cost") is not None:
+            warnings.warn(
+                "'QuantinuumConfig.max_cost' is no longer supported."
+                "The field will be ignored in the submission."
+                "Please specify user_group in the execute job submission parameters instead.",
+                UnknownFieldWarning,
+            )
         return values
 
     @model_validator(mode="after")
     def show_deprecation_warnings(self) -> Self:
         """Warn about deprecated usage."""
-
-        if self.user_group is not None:
-            warnings.warn(
-                "'QuantinuumConfig.user_group' is deprecated and will be "
-                "removed in a future release. Please specify user_group in the execute job"
-                "submission parameters instead.",
-                DeprecationWarning,
-            )
-
-        if self.max_cost is not None:
-            warnings.warn(
-                "'QuantinuumConfig.max_cost' is deprecated and will be "
-                "removed in a future release. Please specify max_cost in the execute job"
-                "submission parameters instead.",
-                DeprecationWarning,
-            )
 
         if self.device_name.startswith(("Helios", "Sol")):
             warnings.warn(

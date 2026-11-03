@@ -326,3 +326,15 @@ def test_quantinuumconfig_deleted_field_warning() -> None:
         match="'QuantinuumConfig.postprocess' is no longer supported.",
     ):
         QuantinuumConfig(device_name="H2-1", postprocess=True)  # type: ignore[call-arg]
+
+    with pytest.warns(
+            UnknownFieldWarning,
+            match="'QuantinuumConfig.user_group' is no longer supported.",
+        ):
+        QuantinuumConfig(device_name="H2-1", user_group=uuid4())
+
+    with pytest.warns(
+        UnknownFieldWarning,
+        match="'QuantinuumConfig.max_cost' is no longer supported.",
+    ):
+        QuantinuumConfig(device_name="H2-1", max_cost=3)
