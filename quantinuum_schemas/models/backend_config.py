@@ -48,6 +48,9 @@ ST = TypeVar("ST", bound="BaseModel")
 
 KNOWN_NEXUS_HELIOS_EMULATORS = ["Helios-1E-lite"]
 
+class UnknownFieldWarning(UserWarning):
+    """Warning for fields that don't exist in a backend config."""
+
 
 def _targets_emulator_device(device_name: str) -> bool:
     """Identify whether a device name targets an emulator.
@@ -89,7 +92,7 @@ class BaseBackendConfig(BaseModel, abc.ABC):
                     f"'{field}' is not known this BackendConfig and will be ignored."
                     "this may be because the field was deprecated and has been deleted,"
                     "or may be the result of a typo.",
-                    DeprecationWarning,
+                    UnknownFieldWarning,
                 )
 
         return values
