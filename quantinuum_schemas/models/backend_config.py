@@ -447,14 +447,7 @@ class QulacsConfig(BaseBackendConfig):
 
 
 class BaseEmulatorConfig(BaseModel):
-    """Shared configuration for Selene emulator instances. Not to be used directly.
-
-    Args:
-        n_qubits: (Deprecated) The maximum number of qubits to simulate.
-          Specify in the job submission parameters per-job item instead.
-    """
-
-    n_qubits: int | None = None
+    """Shared configuration for Selene emulator instances. Not to be used directly."""
 
     @model_validator(mode="after")
     def prevent_direct_instantiation(self) -> Self:
@@ -465,18 +458,18 @@ class BaseEmulatorConfig(BaseModel):
             )
         return self
 
-    @model_validator(mode="after")
-    def show_deprecation_warnings(self) -> Self:
-        """Warn about deprecated usage."""
-
-        if self.n_qubits is not None:
+    @model_validator(mode="before")
+    @classmethod
+    def show_deleted_fields_warnings(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Warn about fields that are no longer supported."""
+        if values.get("n_qubits") is not None:
             warnings.warn(
-                "'BaseEmulatorConfig.n_qubits' is deprecated and will be "
-                "removed in a future release. Please specify n_qubits in the execute job"
-                "submission parameters per-job item instead.",
-                DeprecationWarning,
+                "'n_qubits' is no longer supported for this backend. "
+                "The field will be ignored in the submission."
+                "Please specify user_group in the execute job submission parameters instead.",
+                UnknownFieldWarning,
             )
-        return self
+        return values
 
 
 class SeleneConfig(BaseEmulatorConfig, BaseBackendConfig):
@@ -487,8 +480,6 @@ class SeleneConfig(BaseEmulatorConfig, BaseBackendConfig):
         runtime: The runtime for the Selene emulator. Runtimes for specific systems
           will model system aspects such as ion transport.
         error_model: The error model for the Selene emulator.
-        n_qubits: (Deprecated) The maximum number of qubits to have available for the simulation.
-          Specify in the job submission parameters per-job item instead.
     """
 
     type: Literal["SeleneConfig"] = "SeleneConfig"
@@ -513,8 +504,6 @@ class SelenePlusConfig(BaseEmulatorConfig, BaseBackendConfig):
         runtime: The runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios)
           will model system aspects such as ion transport.
         error_model: The error model for the Selene emulator.
-        n_qubits: (Deprecated) The maximum number of qubits to have available for the simulation.
-          Specify in the job submission parameters per-job item instead.
     """
 
     type: Literal["SelenePlusConfig"] = "SelenePlusConfig"
@@ -561,11 +550,7 @@ class HeliosEmulatorConfig(BaseEmulatorConfig):
         runtime: The runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios)
           will model system aspects such as ion transport.
         error_model: The error model for the Selene emulator.
-        n_qubits: (Deprecated) The maximum number of qubits to have available for the simulation.
-          Specify in the job submission parameters per-job item instead.
     """
-
-    n_qubits: int | None = None
 
     simulator: (
         StatevectorSimulator
@@ -581,6 +566,19 @@ class HeliosEmulatorConfig(BaseEmulatorConfig):
         | HeliosCustomErrorModel
     ) = Field(default_factory=QSystemErrorModel)
     runtime: HeliosRuntime = Field(default_factory=HeliosRuntime)
+
+    @model_validator(mode="before")
+    @classmethod
+    def show_deleted_fields_warnings(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Warn about fields that are no longer supported."""
+        if values.get("n_qubits") is not None:
+            warnings.warn(
+                "'n_qubits' is no longer supported for this backend. "
+                "The field will be ignored in the submission."
+                "Please specify user_group in the execute job submission parameters instead.",
+                UnknownFieldWarning,
+            )
+        return values
 
 
 class HeliosConfig(BaseBackendConfig, BatchingValidationMixin, MaxCostValidationMixin):

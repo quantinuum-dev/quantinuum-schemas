@@ -83,7 +83,6 @@ def test_selene_config_roundtrip(
         simulator=simulator_class(),
         runtime=runtime_class(),
         error_model=error_model_class(),
-        n_qubits=4,
     )
 
     reloaded_config = SeleneConfig.model_validate_json(config.model_dump_json())
@@ -121,7 +120,6 @@ def test_selene_plus_config_roundtrip(
                 runtime=runtime_class(),
                 simulator=simulator_class(),
                 error_model=error_model_class(),
-                n_qubits=4,
             )
         return
 
@@ -129,7 +127,6 @@ def test_selene_plus_config_roundtrip(
         runtime=runtime_class(),
         simulator=simulator_class(),
         error_model=error_model_class(),
-        n_qubits=4,
     )
 
     reloaded_config = SelenePlusConfig.model_validate_json(config.model_dump_json())
@@ -344,3 +341,24 @@ def test_quantinuumconfig_deleted_field_warning() -> None:
         match="'max_cost' is no longer supported.",
     ):
         HeliosConfig(system_name="Helios-1E", max_cost=3)  # type: ignore[call-arg]
+
+    with pytest.warns(
+        UnknownFieldWarning,
+        match="'n_qubits' is no longer supported.",
+    ):
+        HeliosConfig(
+            system_name="Helios-1E",
+            emulator_config=HeliosEmulatorConfig(n_qubits=5),  # type: ignore[call-arg]
+        )
+
+    with pytest.warns(
+        UnknownFieldWarning,
+        match="'n_qubits' is no longer supported.",
+    ):
+        SeleneConfig(n_qubits=5)  # type: ignore[call-arg]
+
+    with pytest.warns(
+        UnknownFieldWarning,
+        match="'n_qubits' is no longer supported.",
+    ):
+        SelenePlusConfig(n_qubits=5)  # type: ignore[call-arg]
