@@ -83,7 +83,6 @@ def test_selene_config_roundtrip(
         simulator=simulator_class(),
         runtime=runtime_class(),
         error_model=error_model_class(),
-        n_qubits=4,
     )
 
     reloaded_config = SeleneConfig.model_validate_json(config.model_dump_json())
@@ -121,7 +120,6 @@ def test_selene_plus_config_roundtrip(
                 runtime=runtime_class(),
                 simulator=simulator_class(),
                 error_model=error_model_class(),
-                n_qubits=4,
             )
         return
 
@@ -129,7 +127,6 @@ def test_selene_plus_config_roundtrip(
         runtime=runtime_class(),
         simulator=simulator_class(),
         error_model=error_model_class(),
-        n_qubits=4,
     )
 
     reloaded_config = SelenePlusConfig.model_validate_json(config.model_dump_json())
@@ -290,9 +287,9 @@ def test_match_batch_cost_warns_if_needed() -> None:
     reason="QuantinuumConfig warns instead of rejecting these targets until full deprecation is done."
 )
 @pytest.mark.parametrize("device_name", ["Helios-1", "Sol"])
-def test_quantinuum_config_warns_for_helios_and_sol(device_name: str) -> None:
+def test_quantinuum_config_errors_for_helios_and_sol(device_name: str) -> None:
     """QuantinuumConfig should warn for deprecated Helios/Sol targets."""
-    with pytest.warns(DeprecationWarning, match="QuantinuumConfig is deprecated"):
+    with pytest.raises(ValueError, match="QuantinuumConfig is deprecated"):
         QuantinuumConfig(device_name=device_name)
 
 
@@ -317,3 +314,51 @@ def test_backend_config_warns_if_extra_fields_from_dict(
         UnknownFieldWarning, match="is not known for this backend and will be ignored. "
     ):
         input_cls.model_validate(backend_dict)
+
+
+def test_quantinuumconfig_deleted_field_warning() -> None:
+    """QuantinuumConfig and HeliosConfig should warn for removed fields."""
+    with pytest.warns(
+        UnknownFieldWarning,
+        match="'postprocess' is no longer supported for this backend.",
+    ):
+        QuantinuumConfig(device_name="H2-1", postprocess=True)  # type: ignore[call-arg]
+
+    with pytest.warns(
+        UnknownFieldWarning,
+        match="'user_group' is no longer supported for this backend.",
+    ):
+        QuantinuumConfig(device_name="H2-1", user_group=uuid4())  # type: ignore[call-arg]
+
+    with pytest.warns(
+        UnknownFieldWarning,
+        match="'max_cost' is no longer supported for this backend.",
+    ):
+        QuantinuumConfig(device_name="H2-1", max_cost=3)  # type: ignore[call-arg]
+
+    with pytest.warns(
+        UnknownFieldWarning,
+        match="'max_cost' is no longer supported.",
+    ):
+        HeliosConfig(system_name="Helios-1E", max_cost=3)  # type: ignore[call-arg]
+
+    with pytest.warns(
+        UnknownFieldWarning,
+        match="'n_qubits' is no longer supported.",
+    ):
+        HeliosConfig(
+            system_name="Helios-1E",
+            emulator_config=HeliosEmulatorConfig(n_qubits=5),  # type: ignore[call-arg]
+        )
+
+    with pytest.warns(
+        UnknownFieldWarning,
+        match="'n_qubits' is no longer supported.",
+    ):
+        SeleneConfig(n_qubits=5)  # type: ignore[call-arg]
+
+    with pytest.warns(
+        UnknownFieldWarning,
+        match="'n_qubits' is no longer supported.",
+    ):
+        SelenePlusConfig(n_qubits=5)  # type: ignore[call-arg]

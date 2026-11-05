@@ -288,7 +288,27 @@ class BatchingValidationMixin:
         return self
 
 
-class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
+class MaxCostValidationMixin:
+    """Mixin to warn for deprecated 'max_cost' field usage"""
+
+    @model_validator(mode="before")
+    @classmethod
+    def show_deleted_max_cost_field_warning(
+        cls, values: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Warn about fields that are no longer supported."""
+        if values.get("max_cost") is not None:
+            warnings.warn(
+                "'max_cost' is no longer supported for this backend. "
+                "The field will be ignored in the submission.",
+                UnknownFieldWarning,
+            )
+        return values
+
+
+class QuantinuumConfig(
+    BaseBackendConfig, BatchingValidationMixin, MaxCostValidationMixin
+):
     """Runs circuits on Quantinuum's quantum devices and simulators.
 
     Args:
@@ -298,9 +318,6 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
         attempt_batching: Whether to attempt batching of circuits.
         batch_id: Optional id for batching jobs. Can only be set if attempt_batching=True.
         allow_implicit_swaps: Whether to allow implicit swaps in the compilation process.
-        postprocess:
-          Apply end-of-circuit simplifications and classical postprocessing
-          to improve fidelity of results
         noisy_simulation: Whether to use a noisy simulation with an error model.
         target_2qb_gate: The target 2-qubit gate for the compilation process.
         compiler_options: Additional options for the Quantinuum Systems compiler.
@@ -313,10 +330,7 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
         simplify_initial: Apply the pytket SimplifyInitial pass to improve fidelity of
           results assuming all qubits initialized to zero.
         error_params: Additional error parameters for execution on an emulator.
-        user_group: The user group for the compilation jobs.
         max_batch_cost: The maximum HQC cost for a batch of programs (total).
-        max_cost: (Deprecated) The maximum HQC cost for a single program. Please
-          specify max_cost in the execute job submission parameters per-job item instead.
     """
 
     type: Literal["QuantinuumConfig"] = "QuantinuumConfig"
@@ -328,17 +342,14 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
     # Parameters below are passed into QuantinuumBackend.compilation_config in their own class.
     allow_implicit_swaps: bool = True
     # Parameters below are kwargs used in QuantinuumBackend.process_circuits().
-    postprocess: bool = False
     noisy_simulation: bool | None = None
     target_2qb_gate: Optional[str] = None
-    user_group: Optional[str] = None
     max_batch_cost: Optional[float] = None
     compiler_options: Optional[QuantinuumCompilerOptions] = None
     no_opt: bool = True
     allow_2q_gate_rebase: bool = False
     leakage_detection: bool = False
     simplify_initial: bool = False
-    max_cost: Optional[int] = None
     error_params: Optional[UserErrorParams] = None
 
     @model_validator(mode="before")
@@ -359,31 +370,33 @@ class QuantinuumConfig(BaseBackendConfig, BatchingValidationMixin):
                 values["noisy_simulation"] = True
         return values
 
+    @model_validator(mode="before")
+    @classmethod
+    def show_deleted_fields_warnings(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Warn about fields that are no longer supported."""
+        if values.get("postprocess") is not None:
+            warnings.warn(
+                "'postprocess' is no longer supported for this backend. "
+                "The field will be ignored in the submission.",
+                UnknownFieldWarning,
+            )
+        if values.get("user_group") is not None:
+            warnings.warn(
+                "'user_group' is no longer supported for this backend. "
+                "The field will be ignored in the submission. "
+                "Please specify user_group in the execute job submission parameters instead.",
+                UnknownFieldWarning,
+            )
+        return values
+
     @model_validator(mode="after")
-    def show_deprecation_warnings(self) -> Self:
-        """Warn about deprecated usage."""
-
-        if self.user_group is not None:
-            warnings.warn(
-                "'QuantinuumConfig.user_group' is deprecated and will be "
-                "removed in a future release. Please specify user_group in the execute job"
-                "submission parameters instead.",
-                DeprecationWarning,
-            )
-
-        if self.max_cost is not None:
-            warnings.warn(
-                "'QuantinuumConfig.max_cost' is deprecated and will be "
-                "removed in a future release. Please specify max_cost in the execute job"
-                "submission parameters instead.",
-                DeprecationWarning,
-            )
+    def disallow_helios_devices(self) -> Self:
+        """Raise an error if the device is a Helios or Sol system."""
 
         if self.device_name.startswith(("Helios", "Sol")):
-            warnings.warn(
-                "QuantinuumConfig is deprecated for submission to Helios systems and support "
-                "will be removed in a future release. Please use HeliosConfig instead.",
-                DeprecationWarning,
+            raise ValueError(
+                "QuantinuumConfig is no longer supported for submission to Helios systems. "
+                "Please use HeliosConfig instead.",
             )
 
         return self
@@ -434,14 +447,7 @@ class QulacsConfig(BaseBackendConfig):
 
 
 class BaseEmulatorConfig(BaseModel):
-    """Shared configuration for Selene emulator instances. Not to be used directly.
-
-    Args:
-        n_qubits: (Deprecated) The maximum number of qubits to simulate.
-          Specify in the job submission parameters per-job item instead.
-    """
-
-    n_qubits: int | None = None
+    """Shared configuration for Selene emulator instances. Not to be used directly."""
 
     @model_validator(mode="after")
     def prevent_direct_instantiation(self) -> Self:
@@ -452,18 +458,18 @@ class BaseEmulatorConfig(BaseModel):
             )
         return self
 
-    @model_validator(mode="after")
-    def show_deprecation_warnings(self) -> Self:
-        """Warn about deprecated usage."""
-
-        if self.n_qubits is not None:
+    @model_validator(mode="before")
+    @classmethod
+    def show_deleted_fields_warnings(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Warn about fields that are no longer supported."""
+        if values.get("n_qubits") is not None:
             warnings.warn(
-                "'BaseEmulatorConfig.n_qubits' is deprecated and will be "
-                "removed in a future release. Please specify n_qubits in the execute job"
-                "submission parameters per-job item instead.",
-                DeprecationWarning,
+                "'n_qubits' is no longer supported for this backend. "
+                "The field will be ignored in the submission."
+                "Please specify user_group in the execute job submission parameters instead.",
+                UnknownFieldWarning,
             )
-        return self
+        return values
 
 
 class SeleneConfig(BaseEmulatorConfig, BaseBackendConfig):
@@ -474,8 +480,6 @@ class SeleneConfig(BaseEmulatorConfig, BaseBackendConfig):
         runtime: The runtime for the Selene emulator. Runtimes for specific systems
           will model system aspects such as ion transport.
         error_model: The error model for the Selene emulator.
-        n_qubits: (Deprecated) The maximum number of qubits to have available for the simulation.
-          Specify in the job submission parameters per-job item instead.
     """
 
     type: Literal["SeleneConfig"] = "SeleneConfig"
@@ -500,8 +504,6 @@ class SelenePlusConfig(BaseEmulatorConfig, BaseBackendConfig):
         runtime: The runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios)
           will model system aspects such as ion transport.
         error_model: The error model for the Selene emulator.
-        n_qubits: (Deprecated) The maximum number of qubits to have available for the simulation.
-          Specify in the job submission parameters per-job item instead.
     """
 
     type: Literal["SelenePlusConfig"] = "SelenePlusConfig"
@@ -548,11 +550,7 @@ class HeliosEmulatorConfig(BaseEmulatorConfig):
         runtime: The runtime for the Selene emulator. Runtimes for specific systems (e.g. Helios)
           will model system aspects such as ion transport.
         error_model: The error model for the Selene emulator.
-        n_qubits: (Deprecated) The maximum number of qubits to have available for the simulation.
-          Specify in the job submission parameters per-job item instead.
     """
-
-    n_qubits: int | None = None
 
     simulator: (
         StatevectorSimulator
@@ -569,16 +567,27 @@ class HeliosEmulatorConfig(BaseEmulatorConfig):
     ) = Field(default_factory=QSystemErrorModel)
     runtime: HeliosRuntime = Field(default_factory=HeliosRuntime)
 
+    @model_validator(mode="before")
+    @classmethod
+    def show_deleted_fields_warnings(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Warn about fields that are no longer supported."""
+        if values.get("n_qubits") is not None:
+            warnings.warn(
+                "'n_qubits' is no longer supported for this backend. "
+                "The field will be ignored in the submission."
+                "Please specify user_group in the execute job submission parameters instead.",
+                UnknownFieldWarning,
+            )
+        return values
 
-class HeliosConfig(BaseBackendConfig, BatchingValidationMixin):
+
+class HeliosConfig(BaseBackendConfig, BatchingValidationMixin, MaxCostValidationMixin):
     """Configuration for Helios generation QPUs, emulators and checkers."""
 
     type: Literal["HeliosConfig"] = "HeliosConfig"
 
     system_name: str = "Helios-1"
     emulator_config: HeliosEmulatorConfig | None = None
-
-    max_cost: float | None = None
 
     attempt_batching: bool = False
     batch_id: Optional[UUID] = None
@@ -589,14 +598,6 @@ class HeliosConfig(BaseBackendConfig, BatchingValidationMixin):
     @model_validator(mode="after")
     def check_valid_config(self) -> Self:
         """Perform simple configuration validation."""
-
-        if self.max_cost is not None:
-            warnings.warn(
-                "'HeliosConfig.max_cost' is deprecated and will be "
-                "removed in a future release. Please specify max_cost in the execute job"
-                "submission parameters instead.",
-                DeprecationWarning,
-            )
 
         if self.emulator_config is not None:
             if self.system_name not in KNOWN_NEXUS_HELIOS_EMULATORS:
