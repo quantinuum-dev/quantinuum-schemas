@@ -1,4 +1,12 @@
 
+## 8.0.0 (2026-11-05)
+
+
+### Added
+
+- Warn if a backendconfig is initialised with extra fields (#69).
+- Remove deprecated and unsupported fields from backendconfig (#70).
+
 ## 7.8.2 (2026-08-14)
 
 
