@@ -122,13 +122,14 @@ class StabilizerSimulator(BaseModel):
     Args:
         seed: Random seed for the simulation engine.
         angle_threshold: How far angles can be away from pi/2 rotations on the bloch sphere
-          before they are considered invalid.
+          before they are considered invalid. If no value is chosen, the default value
+          for the simulator will be used.
     """
 
     type: Literal["StabilizerSimulator"] = "StabilizerSimulator"
 
     seed: int | None = Field(default=None)
-    angle_threshold: float = Field(default=1e-8, gt=0.0)
+    angle_threshold: float | None = Field(None)
 
 
 class MatrixProductStateSimulator(BaseModel):
