@@ -1,4 +1,11 @@
 
+## 8.1.1 (2026-11-09)
+
+
+### Fixed
+
+- Don't throw an error when you create a quantinuumconfig with ng target.
+
 ## 8.1.0 (2026-11-09)
 
 
