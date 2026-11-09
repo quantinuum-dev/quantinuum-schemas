@@ -389,18 +389,6 @@ class QuantinuumConfig(
             )
         return values
 
-    @model_validator(mode="after")
-    def disallow_helios_devices(self) -> Self:
-        """Raise an error if the device is a Helios or Sol system."""
-
-        if self.device_name.startswith(("Helios", "Sol")):
-            raise ValueError(
-                "QuantinuumConfig is no longer supported for submission to Helios systems. "
-                "Please use HeliosConfig instead.",
-            )
-
-        return self
-
     def targets_hardware_device(self) -> bool:
         """Helper function to identify hardware backends."""
         return not _targets_emulator_device(
