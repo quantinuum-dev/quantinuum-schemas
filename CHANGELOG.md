@@ -1,4 +1,11 @@
 
+## 8.1.0 (2026-11-09)
+
+
+### Added
+
+- Allow angle_threshold to be set to null.
+
 ## 8.0.0 (2026-11-05)
 
 
