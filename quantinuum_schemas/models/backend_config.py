@@ -390,15 +390,14 @@ class QuantinuumConfig(
         return values
 
     @model_validator(mode="after")
-    def disallow_helios_devices(self) -> Self:
-        """Raise an error if the device is a Helios or Sol system."""
-
+    def show_deprecation_warnings(self) -> Self:
+        """Warn about deprecated usage."""
         if self.device_name.startswith(("Helios", "Sol")):
-            raise ValueError(
-                "QuantinuumConfig is no longer supported for submission to Helios systems. "
-                "Please use HeliosConfig instead.",
+            warnings.warn(
+                "QuantinuumConfig is deprecated for submission to Helios systems and support "
+                "will be removed in a future release. Please use HeliosConfig instead.",
+                DeprecationWarning,
             )
-
         return self
 
     def targets_hardware_device(self) -> bool:
