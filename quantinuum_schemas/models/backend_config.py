@@ -393,11 +393,11 @@ class QuantinuumConfig(
     def show_deprecation_warnings(self) -> Self:
         """Warn about deprecated usage."""
         if self.device_name.startswith(("Helios", "Sol")):
-                warnings.warn(
-                    "QuantinuumConfig is deprecated for submission to Helios systems and support "
-                    "will be removed in a future release. Please use HeliosConfig instead.",
-                    DeprecationWarning,
-                )
+            warnings.warn(
+                "QuantinuumConfig is deprecated for submission to Helios systems and support "
+                "will be removed in a future release. Please use HeliosConfig instead.",
+                DeprecationWarning,
+            )
         return self
 
     def targets_hardware_device(self) -> bool:
